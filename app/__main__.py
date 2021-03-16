@@ -1,4 +1,4 @@
 from crawler import Crawler
 
-crawler = Crawler(2)
+crawler = Crawler()
 print(crawler.frontier.get_next_url())
