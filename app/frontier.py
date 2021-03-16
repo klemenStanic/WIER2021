@@ -13,6 +13,8 @@ class Frontier:
         return result_site.domain + result_page.url
 
 
+
+
 # for testing
 if __name__ == '__main__':
     frontier = Frontier()
