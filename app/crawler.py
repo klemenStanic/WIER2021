@@ -1,8 +1,11 @@
-class Crawler:
-    n_of_workers = 0
+from frontier import Frontier
 
-    def __init__(self, n_of_workers):
-        self.n_of_workers = n_of_workers
+
+class Crawler:
+    def __init__(self, num_of_workers=1):
+        self.n_workers = n_of_workers
+        self.frontier = Frontier()
+        
 
     def init_db_connections(self):
         """

@@ -6,8 +6,6 @@ from sqlalchemy import Column, Integer, String, Text, BigInteger, LargeBinary
 
 Base = declarative_base()
 engine = create_engine('postgresql+psycopg2://postgres@0.0.0.0:5431/postgres', connect_args={'options': '-csearch_path=crawldb'})
-session = Session(engine)
-
 
 class DataType(Base):
     __tablename__ = 'data_type'
@@ -55,4 +53,5 @@ class Link(Base):
     from_page = Column('from_page', Integer, ForeignKey(Page.id), primary_key=True)
     to_page = Column('to_page', Integer, ForeignKey(Page.id), primary_key=True)
 
-#print([i.code for i in session.query(DataType).all()])
+# session = Session(engine)
+# print([i.code for i in session.query(DataType).all()])
