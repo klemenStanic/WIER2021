@@ -5,9 +5,12 @@ class Frontier:
         self.session = Session(engine)
 
     def get_next_url(self):
-        result = self.session.query(Page).filter(Page.accessed_time == None).order_by(Page.id.asc()).first()
+        result_page = self.session.query(Page).filter(Page.accessed_time == None).order_by(Page.id.asc()).first()
+        if result_page is None:
+            return None
+        result_site = self.session.query(Site).filter(Site.id == result_page.site_id).first()
         # TODO update db with new timestamp at Page.accessed_time
-        return result
+        return result_site.domain + result_page.url
 
 
 # for testing
