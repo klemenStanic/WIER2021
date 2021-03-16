@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.schema import ForeignKey
 from sqlalchemy.orm import Session
 from sqlalchemy import Column, Integer, String, Text, BigInteger, LargeBinary
 
@@ -26,8 +27,8 @@ class Site(Base):
 class Page(Base):
     __tablename__ = 'page'
     id = Column('id', Integer, primary_key=True)
-    site_id = Column('site_id', Integer)
-    page_type_code = Column('page_type_code', String)
+    site_id = Column('site_id', Integer, ForeignKey(Site.id))
+    page_type_code = Column('page_type_code', String, ForeignKey(PageType.code))
     url = Column('url', String) 
     html_content = Column('html_content', Text)
     html_status_code = Column('http_status_code', Integer)
@@ -36,7 +37,14 @@ class Page(Base):
 class PageData(Base):
     __tablename__ = 'page_data'
     id = Column('id', Integer, primary_key=True)
-    page_id = Column('page_id', Integer)
+    page_id = Column('page_id', Integer, ForeignKey(Page.id))
+    data_type_code = Column('data_type_code', String, ForeignKey(DataType.code))
+    data = Column('data', LargeBinary)
+    
+class Image(Base):
+    __tablename__ = 'image'
+    id = Column('id', Integer, primary_key=True)
+    page_id = Column('page_id', Integer, ForeignKey(Page.id))
     filename = Column('filename', String)
     conent_type = Column('content_type', String)
     data = Column('data', LargeBinary)
@@ -44,7 +52,7 @@ class PageData(Base):
 
 class Link(Base):
     __tablename__ = 'link'
-    from_page = Column('from_page', Integer)
-    to_page = Column('to_page', Integer)
+    from_page = Column('from_page', Integer, ForeignKey(Page.id), primary_key=True)
+    to_page = Column('to_page', Integer, ForeignKey(Page.id), primary_key=True)
 
-#print([i for i in session.query(DataType).values()])
+#print([i.code for i in session.query(DataType).all()])
