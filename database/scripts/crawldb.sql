@@ -21,6 +21,7 @@ CREATE TABLE crawldb.site (
 CREATE TABLE crawldb.page ( 
 	id                   serial  NOT NULL,
 	site_id              integer  ,
+    status               boolean ,
 	page_type_code       varchar(20)  ,
 	url                  varchar(3000)  ,
 	html_content         text  ,
