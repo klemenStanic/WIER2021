@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import ForeignKey
 from sqlalchemy.orm import Session
