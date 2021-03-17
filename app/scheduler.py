@@ -8,7 +8,7 @@ class Scheduler:
         if seed:
             self.load_seed(seed_path)
     
-    def update_schedule(self, site_id, site_ip, timestamp):
+    def add_schedule(self, site_id, site_ip, timestamp):
         schedule = Schedule()
         schedule.site_id = site_id
         schedule.site_ip = site_ip
@@ -16,6 +16,11 @@ class Scheduler:
         self.session.add(schedule)
         self.session.commit()
         return self.session.query(Schedule).filter(Schedule.site_id == site_id).first()
+
+    def update_schedule(self, site_id):
+        schedule = self.session.query(Schedule).filter(Schedule.site_id==site_id).first()
+        schedule.timestamp = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        self.session.commit()
 
     def insert_site(self, domain):
         site = Site()
@@ -33,7 +38,7 @@ class Scheduler:
                 domain = domain.strip()
                 ip = self.get_ip(domain)
                 site = self.insert_site(domain)
-                self.update_schedule(site.id, ip, 0)
+                self.add_schedule(site.id, ip, 0)
 
     def get_free_site(self):
         current_time = datetime.datetime.now(datetime.timezone.utc)
@@ -42,8 +47,3 @@ class Scheduler:
         if site_result is not None:
             return site_result.site_id
         return None
-
-    def update_schedule(self, site_id):
-        schedule = self.session.query(Schedule).filter(Schedule.site_id==site_id).first()
-        schedule.timestamp = datetime.datetime.now(datetime.timezone.utc).timestamp()
-        self.session.commit()
