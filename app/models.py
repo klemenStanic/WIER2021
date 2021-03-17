@@ -45,7 +45,7 @@ class Image(Base):
     id = Column('id', Integer, primary_key=True)
     page_id = Column('page_id', Integer, ForeignKey(Page.id))
     filename = Column('filename', String)
-    conent_type = Column('content_type', String)
+    content_type = Column('content_type', String)
     data = Column('data', LargeBinary)
     accessed_time = Column('accessed_time', BigInteger)
 
