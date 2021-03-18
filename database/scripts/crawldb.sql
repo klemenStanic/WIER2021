@@ -15,6 +15,8 @@ CREATE TABLE crawldb.site (
 	"domain"             varchar(500)  ,
 	robots_content       text  ,
 	sitemap_content      text  ,
+	site_ip              varchar(255)  ,
+	timestamp	         integer  ,
 	CONSTRAINT pk_site_id PRIMARY KEY ( id )
  );
 
@@ -95,13 +97,3 @@ INSERT INTO crawldb.page_type VALUES
 	('BINARY'),
 	('DUPLICATE'),
 	('FRONTIER');
-
-CREATE TABLE crawldb.schedule ( 
-	id                   serial  NOT NULL,
-	site_id              integer  ,
-	site_ip             varchar(255)  ,
-	timestamp	        integer  ,
-	CONSTRAINT pk_schedule_id PRIMARY KEY ( id )
-);
-
-ALTER TABLE crawldb.schedule ADD CONSTRAINT fk_schedule_site_id FOREIGN KEY ( site_id ) REFERENCES crawldb.site( id ) ON DELETE RESTRICT;

@@ -21,6 +21,8 @@ class Site(Base):
     domain = Column('domain', String)
     robots_content = Column('robots_content', String)
     sitemap_content = Column('sitemap_content', String)
+    site_ip = Column('site_ip', String)
+    timestamp = Column('timestamp', BigInteger)
 
 class Page(Base):
     __tablename__ = 'page'
@@ -53,13 +55,6 @@ class Link(Base):
     __tablename__ = 'link'
     from_page = Column('from_page', Integer, ForeignKey(Page.id), primary_key=True)
     to_page = Column('to_page', Integer, ForeignKey(Page.id), primary_key=True)
-
-class Schedule(Base):
-    __tablename__ = 'schedule'
-    id = Column('id', Integer, primary_key=True)
-    site_id = Column('site_id', Integer, ForeignKey(Site.id))
-    site_ip = Column('site_ip', String)
-    timestamp = Column('timestamp', BigInteger)
 
 # session = Session(engine)
 # print([i.code for i in session.query(DataType).all()])

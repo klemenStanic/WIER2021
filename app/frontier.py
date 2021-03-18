@@ -35,9 +35,20 @@ class Frontier:
             self.session.commit()
         return self.parse_robots(result_site.robots_content)
 
+    def add_root_page(self, site_id):
+        site = self.session.query(Site).filter(Site.id==site_id).first()
+        root_page = Page()
+        root_page.site_id = site_id
+        root_page.url = f'{site.domain}/'
+        root_page.status = None
+        root_page.page_type_code = 'FRONTIER' 
+        self.session.add(root_page)
+        new_page = self.session.query(Page).filter(Page.url==f'{site.domain}/').first()
+        return new_page
+
     def get_next_url(self):
         """
-        This method checks if there is an site/IP which hasn't been visited in last 5 seconds
+        This method checks if there is site/IP which hasn't been visited in last 5 seconds
         If it gets such site, it checks if there are any unvisited pages of this site and returns url.
         """
         site_id = self.scheduler.get_free_site()
@@ -46,11 +57,9 @@ class Frontier:
         result_page = self.session.query(Page).filter(Page.site_id==site_id).filter(Page.accessed_time==None).order_by(Page.id.asc()).first()
         if result_site is None:
             return None
-        self.scheduler.update_schedule(site_id) # update scheduler with new timestamp
         if result_page is None:
-            return result_site.domain
+            result_page = self.add_root_page(site_id)
         # handle if crawler is even allowed on url
-        robots_json = self.get_site_robots(site_id)
         for disallow in robots_json['disallow']:
             # if crawler is not allowed on this url, update Page.accessed_time = -1 and call self function again 
             if disallow == result_page.url[:len(disallow)]:
@@ -58,7 +67,8 @@ class Frontier:
                 self.session.commit()
                 return self.get_next_url()
 
-        return result_site.domain + result_page.url
+        self.scheduler.update_timestamp(site_id) # update scheduler with new timestamp
+        return result_page.id
 
 
 
