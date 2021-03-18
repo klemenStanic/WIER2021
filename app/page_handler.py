@@ -49,7 +49,8 @@ class PageHandler:
         self.session.commit()
 
         # Check whether the page is HTML, otherwise save as binary and terminate ------------------
-        req = requests.get(self.page_url)
+        # https://vprasalnik.gu.gov.si/DAZK/faces/Login.jspx
+        req = requests.get(self.page_url) #TODO: if crash, close Page in DB and return
         content_type = req.headers["Content-Type"]
         self.content_type = content_type
         self.status_code = req.status_code
@@ -124,7 +125,7 @@ class PageHandler:
         # Remove the links that point outside of .gov
         links_trancuted = []
         for el in links:
-            if "gov.si" in el:
+            if "gov.si/" in el:
                 links_trancuted.append(el)
 
         links = links_trancuted

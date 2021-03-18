@@ -18,8 +18,12 @@ class Scheduler:
         return self.session.query(Site).filter(Site.domain==domain).first()
 
     def get_ip(self, domain):
-        print(f"Domain: {domain}")
-        return  socket.gethostbyname(domain)
+        ip = None
+        try:
+            ip = socket.gethostbyname(domain)
+        except:
+            ip = None
+        return ip
 
     def load_seed(self, seed_path):
         with open(seed_path) as seed_file:
@@ -44,7 +48,7 @@ class Scheduler:
         self.update_sites()
         current_time = datetime.datetime.now(datetime.timezone.utc)
         timestamp = current_time.timestamp() - 5
-        site_result = self.session.query(Site).filter(Site.timestamp <= int(timestamp)).first()
+        site_result = self.session.query(Site).filter(Site.timestamp <= int(timestamp)).filter(Site.site_ip!=None).first()
         if site_result is not None:
             return site_result.id
         return None

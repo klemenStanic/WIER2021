@@ -30,13 +30,21 @@ class Frontier:
             return None
         result_site = self.session.query(Site).filter(Site.id == site_id).first()
         if result_site.robots_content is None:
-            resp = requests.get(f'http://{result_site.domain}/robots.txt')
-            result_site.robots_content = resp.text
-            self.session.commit()
+            try:
+                resp = requests.get(f'http://{result_site.domain}/robots.txt')
+                result_site.robots_content = resp.text
+                self.session.commit()
+            except Exception:
+                return self.parse_robots('404')
         return self.parse_robots(result_site.robots_content)
 
     def add_root_page(self, site_id):
         site = self.session.query(Site).filter(Site.id==site_id).first()
+        # first check if page already exists
+        root_page = self.session.query(Page).filter(Page.url==f'http://{site.domain}/').first()
+        if root_page is not None:
+            return root_page
+
         root_page = Page()
         root_page.site_id = site_id
         root_page.url = f'http://{site.domain}/'
@@ -53,6 +61,7 @@ class Frontier:
         If it gets such site, it checks if there are any unvisited pages of this site and returns url.
         """
         site_id = self.scheduler.get_free_site()
+        print(f"Free site: {site_id}")
         robots_json = self.get_site_robots(site_id)
         result_site = self.session.query(Site).filter(Site.id == site_id).first()
         result_page = self.session.query(Page).filter(Page.site_id==site_id).filter(Page.page_type_code=='FRONTIER').order_by(Page.id.asc()).first()

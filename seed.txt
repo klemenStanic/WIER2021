@@ -1,4 +1,4 @@
-gov.si
+www.gov.si
 evem.gov.si
 e-uprava.gov.si
 e-prostor.gov.si
