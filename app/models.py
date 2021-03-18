@@ -28,10 +28,10 @@ class Page(Base):
     __tablename__ = 'page'
     id = Column('id', Integer, primary_key=True)
     site_id = Column('site_id', Integer, ForeignKey(Site.id))
-    status = Column('status', Boolean)
     page_type_code = Column('page_type_code', String, ForeignKey(PageType.code))
     url = Column('url', String) 
     html_content = Column('html_content', Text)
+    content_hash = Column('content_hash', String)
     html_status_code = Column('http_status_code', Integer)
     accessed_time = Column('accessed_time', BigInteger)
 
