@@ -5,22 +5,78 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from helpers import *
 
+from urllib.parse import urlparse
+import requests
+import hashlib
+
+
+
+
+
 class PageHandler:
     page_url = None
+    base_url = None
     page_id = None
+    site_id = None
+
     session = None
 
-    def __init__(self, url):
-        self.page_url = url
-        self.page_id = self.get_page_id()
+    driver = None
+
+    links = None
+    images = None
+    html_content = None
+    status_code = None
+
+    def __init__(self, page_id):
+        self.page_id = page_id
+        self.page_url = self.get_page_url_and_lock_the_page()
+        self.site_id = self.get_site_id()
+        self.base_url = self.get_base_url()
         self.session = Session(engine)
+
+        # Check if the page is html, otherwise save as binary and terminate
+        req = requests.get(self.page_url)
+        content_type = requests.head(self.page_url).headers["Content-Type"]
+        self.status_code = req.status_code
+        if content_type != "text/html":
+            current_page = self.session.query(Page).filter(Page.id == self.page_id).first()
+            current_page.page_type_code = "BINARY"
+            current_page.status_code = self.status_code
+            current_page.site_id = self.site_id
+            current_page.url = self.page_url
+            current_page.accessed_time = getTimestamp()
+            return
+
+        # Check for duplicates
+
         self.scrape_the_page()
 
+        self.finalize_page()
 
-    def get_page_id(self):
-        result = self.session.query(Page).filter(Page.url == self.page_url).first()
+
+    def get_page_url_and_lock_the_page(self):
+        current_page = self.session.query(Page).filter(Page.id == self.page_id).first()
+        page_url = current_page.url
+        current_page.page_type_code = None
+        self.session.commit()
+        return page_url
+
+
+    def finalize_page(self):
+        current_page = self.session.query(Page).filter(Page.id == self.page_id).first()
+        current_page.html_content = self.html_content
+        current_page.accessed_time = getTimestamp()
+        current_page.status_code = self.status_code
+
+
+    def get_site_id(self):
+        result = self.session.query(Page).filter(Page.id == self.page_id).first().site_id
         return result
 
+    def get_base_url(self):
+        result = self.session.query(Site).filter(Site.id == self.site_id).first().domain
+        return result
 
     def scrape_the_page(self):
         firefox_options = FirefoxOptions()
@@ -30,40 +86,81 @@ class PageHandler:
         firefox_options.add_argument("--headless")
 
         print(f"Retrieving web page URL '{self.page_url}'")
-        driver = webdriver.Firefox(options=firefox_options, executable_path=Config.WEB_DRIVER_LOCATION_GECKO)
+        self.driver = webdriver.Firefox(options=firefox_options, executable_path=Config.WEB_DRIVER_LOCATION_GECKO)
 
-        driver.get(self.page_url)
+        self.driver.get(self.page_url)
 
         # Timeout needed for Web page to render (read more about it)
         time.sleep(Config.RENDERING_TIMEOUT)
 
-        html_content = driver.page_source
-        base_url = self.get_base_url(driver)
+        self.html_content = driver.page_source
 
-        links = self.get_links(driver, base_url)
+        # Check for duplicates
+        hashed_content = hashlib.md5(self.html_content).hexdigest()
 
-        images = self.get_images(driver, base_url)
-        driver.close()
+        result = self.session.query(Page).filter(Page.content_hash == hashed_content).first()
+        if result:
+            current_page = self.session.query(Page).filter(Page.id == self.page_id).first()
+            current_page.page_type_code = "DUPLICATE"
+            current_page.status_code = self.status_code
+            current_page.site_id = self.site_id
+            current_page.url = self.page_url
+            current_page.accessed_time = getTimestamp()
+            return
+
+        # Uncomment ˇ to use the <base> in the page, might not be present in all pages
+        # self.base_url = self.get_base_url()
+
+        self.links = self.get_links()
+
+        self.images = self.get_images()
+        self.driver.close()
 
 
-    def save_pages_to_db(self, links):
-        id = Column('id', Integer, primary_key=True)
-        site_id = Column('site_id', Integer, ForeignKey(Site.id))
-        status = Column('status', Boolean)
-        page_type_code = Column('page_type_code', String, ForeignKey(PageType.code))
-        url = Column('url', String)
-        html_content = Column('html_content', Text)
-        html_status_code = Column('http_status_code', Integer)
-        accessed_time = Column('accessed_time', BigInteger)
 
-        for link in links:
+    def save_pages_to_db(self):
+        for link in self.links:
             page = Page()
-            page.site_id =
+            page.site_id = self.get_site_id_for_page(self.get_domain_name_from_url(link))
+            # If page has status of none, the page has not yet been visited
+            page.status = None
+            page.page_type_code = "FRONTIER"
+            page.url = link
+            self.session.add(page)
+            self.session.commit()
+
+            link_ = Link()
+            link_.from_page = self.page_id
+            link_.to_page = self.session.query(Page).filter(Page.url == link).first().id
+            self.session.add(link_)
+            self.session.commit()
 
 
+    @staticmethod
+    def get_domain_name_from_url(url):
+        domain = urlparse(url).netloc
+        return domain
 
-    def save_images_to_db(self, images):
-        for i in images:
+
+    def get_site_id_for_page(self, url):
+        """
+        Checks the db whether a site with the same domain exists. If not, it creates a new site
+        and return the site's id.
+        :param url:
+        :return: site_id
+        """
+        result = self.session.query(Site).filter(Site.domain == url).first()
+        if result:
+            return result.id
+        site = Site()
+        site.domain = url
+        self.session.add(site)
+        self.session.commit()
+        return self.session.query(Site).filter(Site.domain == url).first().id
+
+
+    def save_images_to_db(self):
+        for i in self.images:
             image = Image()
             image.page_id = self.page_id
             image.filename = i
@@ -82,30 +179,29 @@ class PageHandler:
         return out
 
 
-    @staticmethod
-    def get_images(driver, base_url):
+    def get_images(self):
         out = []
-        imgs = driver.find_elements_by_tag_name("img")
+        imgs = self.driver.find_elements_by_tag_name("img")
         for elem in imgs:
             src = elem.get_attribute("src")
             if src.startswith("/"):
-                out.append(base_url + src)
+                out.append(self.base_url + src)
             elif src is not None and ("http" in src or "https" in src):
                 out.append(src)
         return out
 
 
-    def get_links(self, driver, base_url):
+    def get_links(self):
         links = []
-        elems = driver.find_elements_by_tag_name('a')
+        elems = self.driver.find_elements_by_tag_name('a')
         for elem in elems:
             href = elem.get_attribute('href')
             if href.startswith("/"):
-               links.append(base_url + href)
+               links.append(self.base_url + href)
             elif href is not None and ("http" in href or "https" in href):
                 links.append(href)
 
-        onclicks = driver.find_elements_by_xpath("//*[@onclick]")
+        onclicks = self.driver.find_elements_by_xpath("//*[@onclick]")
 
         # TODO: base_url check
         for el in onclicks:
@@ -120,8 +216,8 @@ class PageHandler:
 
 
     @staticmethod
-    def get_base_url(driver):
-        bases = driver.find_elements_by_tag_name('base')
+    def get_base_url():
+        bases = self.driver.find_elements_by_tag_name('base')
         if len(bases) > 0:
             return bases[0].get_attribute("href")
         return None
