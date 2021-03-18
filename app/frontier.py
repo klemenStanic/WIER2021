@@ -39,12 +39,12 @@ class Frontier:
         site = self.session.query(Site).filter(Site.id==site_id).first()
         root_page = Page()
         root_page.site_id = site_id
-        root_page.url = f'{site.domain}/'
+        root_page.url = f'http://{site.domain}/'
         root_page.status = None
         root_page.page_type_code = 'FRONTIER' 
         self.session.add(root_page)
         self.session.commit()
-        new_page = self.session.query(Page).filter(Page.url==f'{site.domain}/').first()
+        new_page = self.session.query(Page).filter(Page.url==f'http://{site.domain}/').first()
         return new_page
 
     def get_next_url(self):

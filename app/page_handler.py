@@ -30,10 +30,10 @@ class PageHandler:
 
     def __init__(self, page_id):
         self.page_id = page_id
+        self.session = Session(engine)
         self.page_url = self.get_page_url_and_lock_the_page()
         self.site_id = self.get_site_id()
         self.base_url = self.get_base_url()
-        self.session = Session(engine)
 
         # Check if the page is html, otherwise save as binary and terminate
         req = requests.get(self.page_url)
@@ -136,8 +136,7 @@ class PageHandler:
             self.session.commit()
 
 
-    @staticmethod
-    def get_domain_name_from_url(url):
+    def get_domain_name_from_url(self, url):
         domain = urlparse(url).netloc
         return domain
 
@@ -170,8 +169,7 @@ class PageHandler:
             self.session.commit()
 
 
-    @staticmethod
-    def remove_non_gov_sites(sites):
+    def remove_non_gov_sites(self, sites):
         out = []
         for el in sites:
             if "gov.si" in el:
@@ -214,13 +212,12 @@ class PageHandler:
 
         return self.remove_non_gov_sites(links)
 
-
-    @staticmethod
-    def get_base_url():
+"""
+    def get_base_url(self):
         bases = self.driver.find_elements_by_tag_name('base')
         if len(bases) > 0:
             return bases[0].get_attribute("href")
         return None
-
+"""
 #ph = PageHandler("http://evem.gov.si")
 #ph = PageHandler("https://www.w3schools.com/jsref/event_onclick.asp")
