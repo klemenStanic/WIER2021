@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timezone
 
 def getTimestamp():
-    return datetime.datetime.now(datetime.timezone.utc).timestamp()
+    return datetime.now(timezone.utc)

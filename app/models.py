@@ -32,8 +32,8 @@ class Page(Base):
     url = Column('url', String) 
     html_content = Column('html_content', Text)
     content_hash = Column('content_hash', String)
-    html_status_code = Column('http_status_code', Integer)
-    accessed_time = Column('accessed_time', BigInteger)
+    http_status_code = Column('http_status_code', Integer)
+    accessed_time = Column('accessed_time', DateTime)
 
 class PageData(Base):
     __tablename__ = 'page_data'
@@ -49,7 +49,7 @@ class Image(Base):
     filename = Column('filename', String)
     content_type = Column('content_type', String)
     data = Column('data', LargeBinary)
-    accessed_time = Column('accessed_time', BigInteger)
+    accessed_time = Column('accessed_time', DateTime)
 
 class Link(Base):
     __tablename__ = 'link'

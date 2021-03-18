@@ -18,6 +18,7 @@ class Scheduler:
         return self.session.query(Site).filter(Site.domain==domain).first()
 
     def get_ip(self, domain):
+        print(f"Domain: {domain}")
         return  socket.gethostbyname(domain)
 
     def load_seed(self, seed_path):
