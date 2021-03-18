@@ -8,23 +8,11 @@ class Scheduler:
         if seed:
             self.load_seed(seed_path)
     
-    def add_schedule(self, site_id, site_ip, timestamp):
-        schedule = Schedule()
-        schedule.site_id = site_id
-        schedule.site_ip = site_ip
-        schedule.timestamp = timestamp
-        self.session.add(schedule)
-        self.session.commit()
-        return self.session.query(Schedule).filter(Schedule.site_id == site_id).first()
-
-    def update_schedule(self, site_id):
-        schedule = self.session.query(Schedule).filter(Schedule.site_id==site_id).first()
-        schedule.timestamp = datetime.datetime.now(datetime.timezone.utc).timestamp()
-        self.session.commit()
-
-    def insert_site(self, domain):
+    def insert_site(self, domain, ip):
         site = Site()
         site.domain = domain
+        site.site_ip = ip
+        site.timestamp = 0
         self.session.add(site)
         self.session.commit()
         return self.session.query(Site).filter(Site.domain==domain).first()
@@ -37,13 +25,25 @@ class Scheduler:
             for domain in seed_file:
                 domain = domain.strip()
                 ip = self.get_ip(domain)
-                site = self.insert_site(domain)
-                self.add_schedule(site.id, ip, 0)
+                site = self.insert_site(domain, ip)
+
+    def update_sites(self):
+        sites = self.session.query(Site).filter(Site.site_ip==None).all()
+        for site in sites:
+            site.site_ip = self.get_ip(site.domain)
+            site.timestamp = 0
+        self.session.commit()
+
+    def update_timestamp(self, site_id):
+        site_result = self.session.query(Site).filter(Site.id==site_id).first()
+        site_result.timestamp = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+        self.session.commit()
 
     def get_free_site(self):
+        self.update_sites()
         current_time = datetime.datetime.now(datetime.timezone.utc)
         timestamp = current_time.timestamp() - 5
-        site_result = self.session.query(Schedule).filter(Schedule.timestamp <= int(timestamp)).first()
+        site_result = self.session.query(Site).filter(Site.timestamp <= int(timestamp)).first()
         if site_result is not None:
-            return site_result.site_id
+            return site_result.id
         return None
