@@ -3,3 +3,4 @@ database/target
 .idea
 app/__pycache__
 *.log
+log/*
