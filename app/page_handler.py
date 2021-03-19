@@ -50,6 +50,8 @@ class PageHandler:
         self.page_db.page_type_code = None
         self.session.commit()
 
+        # TODO: check if ['PDF','DOC','DOCX','PPT','PPTX'] at the end of url
+
         # Check whether the page is HTML, otherwise save as binary and terminate ------------------
         # https://vprasalnik.gu.gov.si/DAZK/faces/Login.jspx
         try:
@@ -63,7 +65,7 @@ class PageHandler:
             self.page_db.accessed_time = getTimestamp()
             self.session.commit()
             self.session.close()
-            raise e
+            raise
 
         if "text/html" not in content_type:
             print(f"Page {self.page_url} is not a html site.")
@@ -74,7 +76,7 @@ class PageHandler:
             self.page_db.accessed_time = getTimestamp()
             self.session.commit()
             self.session.close()
-            self.driver.close()
+            #self.driver.close()
             return
 
         # The page contains HTML, lets scrape it --------------------------------------------------
@@ -176,14 +178,16 @@ class PageHandler:
                 link_.to_page = self.session.query(Page).filter(Page.url == link).first().id
                 self.session.add(link_)
                 self.session.commit()
-            else:
-                print(f"Page {link} is already in the DB")
+            #else:
+            #    print(f"Page {link} is already in the DB")
 
         # Finding and storing the images on the page --------------------------------------------------
         imgs = self.driver.find_elements_by_tag_name("img")
         for elem in imgs:
             src = elem.get_attribute("src")
             url = ""
+            if src is None:
+                continue
             if src.startswith("/"):
                 url = self.base_url + src
             elif src is not None and ("http" in src or "https" in src):

@@ -7,6 +7,7 @@ import threading
 import time
 import copy
 import sys
+import traceback
 
 from models import *
 
@@ -28,6 +29,7 @@ def run_page_handlers(page_id):
         # Write log file
         with open(f'{LOG_PATH}/page_{page_id}.log','w') as file:
             file.write(str(e))
+            file.write(traceback.format_exc())
         # Mark it in DB
         session = Session(engine)
         page = session.query(Page).filter(Page.id==page_id).first()
