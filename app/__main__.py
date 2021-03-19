@@ -8,6 +8,8 @@ import time
 import copy
 import sys
 
+from models import *
+
 lock = threading.Lock()
 
 # config options
@@ -17,13 +19,22 @@ WORKERS = Config.WORKERS
 LOG_PATH = Config.LOG_PATH
 
 def run_page_handlers(page_id):
+    print("-----------------------------")
     print(f"Crawling page: {page_id}")
     try:
         PageHandler(page_id)
     except Exception as e:
         print(f"Error at page: {page_id}")    
+        # Write log file
         with open(f'{LOG_PATH}/page_{page_id}.log','w') as file:
             file.write(str(e))
+        # Mark it in DB
+        session = Session(engine)
+        page = session.query(Page).filter(Page.id==page_id).first()
+        page.page_type_code = 'ERROR'
+        session.commit()
+        session.close()
+    print("-----------------------------")
     return
 
 
