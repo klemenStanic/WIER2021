@@ -77,7 +77,8 @@ class Frontier:
                 result_page.page_type_code = 'DISALLOWED'
                 self.session.commit()
                 return self.get_next_url()
-
+        result_page.page_type_code = None # we lock this page
+        self.session.commit()
         self.scheduler.update_timestamp(site_id) # update scheduler with new timestamp
         return result_page.id
 
