@@ -12,6 +12,8 @@ from urllib.parse import urlparse
 import requests
 import hashlib
 
+import urlcanon
+
 class PageHandler:
     session = None
     driver = None
@@ -50,10 +52,18 @@ class PageHandler:
 
         # Check whether the page is HTML, otherwise save as binary and terminate ------------------
         # https://vprasalnik.gu.gov.si/DAZK/faces/Login.jspx
-        req = requests.get(self.page_url) #TODO: if crash, close Page in DB and return
-        content_type = req.headers["Content-Type"]
-        self.content_type = content_type
-        self.status_code = req.status_code
+        try:
+            req = requests.get(self.page_url)
+            content_type = req.headers["Content-Type"]
+            self.content_type = content_type
+            self.status_code = req.status_code
+        except Exception as e:
+            self.page_db.http_status_code = 443
+            self.page_db.page_type_code = "ERROR"
+            self.page_db.accessed_time = getTimestamp()
+            self.session.commit()
+            self.session.close()
+            raise e
 
         if "text/html" not in content_type:
             print(f"Page {self.page_url} is not a html site.")
@@ -63,6 +73,8 @@ class PageHandler:
             self.page_db.url = self.page_url
             self.page_db.accessed_time = getTimestamp()
             self.session.commit()
+            self.session.close()
+            self.driver.close()
             return
 
         # The page contains HTML, lets scrape it --------------------------------------------------
@@ -95,6 +107,8 @@ class PageHandler:
             self.page_db.accessed_time = getTimestamp()
             self.page_db.content_hash = self.hashed_content
             self.session.commit()
+            self.session.close()
+            self.driver.close()
             return
 
         # The page is valid html and its not a duplicate, now we extract all the links on the page ---
@@ -129,6 +143,15 @@ class PageHandler:
                 links_trancuted.append(el)
 
         links = links_trancuted
+
+        # Put the links in the canonical form
+        links_canonical = []
+        for el in links:
+            parsed_link = urlcanon.parse_url(el)
+            urlcanon.whatwg(parsed_link)
+            links_canonical.append(str(parsed_link))
+
+        links = links_canonical
 
         # Save the links to the DB -----------------------------------------------------------------
         for link in links:
