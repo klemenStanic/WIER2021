@@ -61,14 +61,18 @@ class Frontier:
         If it gets such site, it checks if there are any unvisited pages of this site and returns url.
         """
         site_id = self.scheduler.get_free_site()
+        if site_id is None:
+            return None
         print(f"[Frontier] Free site's id: {site_id}")
         robots_json = self.get_site_robots(site_id)
-        result_site = self.session.query(Site).filter(Site.id == site_id).first()
-        result_page = self.session.query(Page).filter(Page.site_id==site_id).filter(Page.page_type_code=='FRONTIER').order_by(Page.id.asc()).first()
-        if result_site is None:
-            return None
-        if result_page is None:
+        #result_site = self.session.query(Site).filter(Site.id == site_id).first()
+        result_page = self.session.query(Page).filter(Page.site_id == site_id).filter(Page.page_type_code == 'FRONTIER').order_by(Page.id.asc()).first()
+        all_pages = self.session.query(Page).filter(Page.site_id == site_id).all()
+        if result_page is None and len(all_pages) == 0:  # we check if we need to add root page
             result_page = self.add_root_page(site_id)
+        elif result_page is None and len(all_pages) != 0:
+            self.scheduler.remove_site(site_id)
+            return self.get_next_url()  # apperently this site has been crawled and we can check for a new one
         # handle if crawler is even allowed on url
         for disallow in robots_json['disallow']:
             # if crawler is not allowed on this url, update Page.accessed_time = -1 and call self function again 
@@ -77,9 +81,9 @@ class Frontier:
                 result_page.page_type_code = 'DISALLOWED'
                 self.session.commit()
                 return self.get_next_url()
-        result_page.page_type_code = None # we lock this page
+        result_page.page_type_code = None  # we lock this page
         self.session.commit()
-        self.scheduler.update_timestamp(site_id) # update scheduler with new timestamp
+        self.scheduler.update_timestamp(site_id)  # update scheduler with new timestamp
         return result_page.id
 
 

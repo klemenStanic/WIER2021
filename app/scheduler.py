@@ -48,7 +48,13 @@ class Scheduler:
         self.update_sites()
         current_time = datetime.datetime.now(datetime.timezone.utc)
         timestamp = current_time.timestamp() - 5
-        site_result = self.session.query(Site).filter(Site.timestamp <= int(timestamp)).filter(Site.site_ip!=None).first()
+        site_result = self.session.query(Site).filter(Site.done==None).filter(Site.timestamp <= int(timestamp)).filter(Site.site_ip!=None).first()
         if site_result is not None:
             return site_result.id
         return None
+
+    def remove_site(self, site_id):
+        print(f'Site {site_id} finished!')
+        site = self.session.query(Site).filter(Site.id == site_id).first()
+        site.done = True
+        self.session.commit()

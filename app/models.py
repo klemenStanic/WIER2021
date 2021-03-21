@@ -23,6 +23,7 @@ class Site(Base):
     sitemap_content = Column('sitemap_content', String)
     site_ip = Column('site_ip', String)
     timestamp = Column('timestamp', BigInteger)
+    done = Column('done', Boolean)
 
 class Page(Base):
     __tablename__ = 'page'
