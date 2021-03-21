@@ -17,6 +17,7 @@ CREATE TABLE crawldb.site (
 	sitemap_content      text  ,
 	site_ip              varchar(255)  ,
 	timestamp	         integer  ,
+	done                 boolean,
 	CONSTRAINT pk_site_id PRIMARY KEY ( id )
  );
 
