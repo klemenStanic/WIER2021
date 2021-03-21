@@ -54,7 +54,7 @@ class Scheduler:
         return None
 
     def remove_site(self, site_id):
-        print(f'Site {site_id} finished!')
         site = self.session.query(Site).filter(Site.id == site_id).first()
         site.done = True
         self.session.commit()
+        print(f'[Scheduler] Site {site_id} finished!')

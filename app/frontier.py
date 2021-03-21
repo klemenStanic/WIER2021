@@ -7,6 +7,16 @@ class Frontier:
         self.session = Session(engine)
         self.scheduler = Scheduler(seed=seed, seed_path=seed_path)
 
+    def get_sitemap(self, site_id, sitemap_url):
+        result_site = self.session.query(Site).filter(Site.id == site_id).first()
+        if result_site.sitemap_content is None:
+            try:
+                resp = requests.get(sitemap_url)
+                result_site.sitemap_content = resp.text
+            except Exception:
+                result_site.sitemap_content = "Not found"
+            self.session.commit()
+
     def parse_robots(self, robots_text):
         robots_json = {
             'disallow': [],
@@ -22,7 +32,7 @@ class Frontier:
             elif "Allow:" in line:
                 robots_json['allow'].append(line.split(' ')[1])
             elif "Sitemap:" in line:
-                robots_json['sitemap']= line.split(' ')[1]
+                robots_json['sitemap'] = line.split(' ')[1]
         return robots_json
 
     def get_site_robots(self, site_id):
@@ -65,6 +75,8 @@ class Frontier:
             return None
         print(f"[Frontier] Free site's id: {site_id}")
         robots_json = self.get_site_robots(site_id)
+        if robots_json['sitemap'] is not None:
+            self.get_sitemap(site_id, robots_json['sitemap'])
         #result_site = self.session.query(Site).filter(Site.id == site_id).first()
         result_page = self.session.query(Page).filter(Page.site_id == site_id).filter(Page.page_type_code == 'FRONTIER').order_by(Page.id.asc()).first()
         all_pages = self.session.query(Page).filter(Page.site_id == site_id).all()
