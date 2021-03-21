@@ -2,6 +2,8 @@ from crawler import Crawler
 from page_handler import PageHandler
 from config import Config
 
+from selenium.common.exceptions import  InvalidSessionIdException
+
 import concurrent.futures
 import threading
 import time
@@ -21,11 +23,19 @@ LOG_PATH = Config.LOG_PATH
 
 def run_page_handlers(page_id):
     print("-----------------------------")
-    print(f"Crawling page: {page_id}")
+    print(f"[Main] Crawling page with id: {page_id}")
+    page_handler = None
     try:
-        PageHandler(page_id)
+        page_handler = PageHandler(page_id)
     except Exception as e:
-        print(f"Error at page: {page_id}")    
+        # Lets close the driver
+        if page_handler:
+            try:
+                page_handler.driver.close()
+            except InvalidSessionIdException:
+                print("[Main] Tried to close the driver after an error, but the driver is already closed.")
+
+        print(f"[Main] Error at page: {page_id}")
         # Write log file
         with open(f'{LOG_PATH}/page_{page_id}.log','w') as file:
             file.write(str(e))
@@ -41,7 +51,7 @@ def run_page_handlers(page_id):
 
 
 crawler = Crawler(seed=SEED, seed_path=SEED_PATH)
-print(f"Starting Crawler {'with' if SEED else 'without'} Seed\n ... executing {WORKERS} workers ...\n")
+print(f"[Main] Starting Crawler {'with' if SEED else 'without'} Seed\n ... executing {WORKERS} workers ...\n")
 
 with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as executor:
     while True:

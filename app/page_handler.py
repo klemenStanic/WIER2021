@@ -50,16 +50,15 @@ class PageHandler:
         self.page_db.page_type_code = None
         self.session.commit()
 
-        # TODO: check if ['PDF','DOC','DOCX','PPT','PPTX'] at the end of url
-
         # Check whether the page is HTML, otherwise save as binary and terminate ------------------
-        # https://vprasalnik.gu.gov.si/DAZK/faces/Login.jspx
+        # Sometimes, there is a problem when establishing the ssl connection (Insecure connection),
+        # so we catch the exception
         try:
             req = requests.get(self.page_url)
             content_type = req.headers["Content-Type"]
             self.content_type = content_type
             self.status_code = req.status_code
-        except Exception as e:
+        except Exception:
             self.page_db.http_status_code = 443
             self.page_db.page_type_code = "ERROR"
             self.page_db.accessed_time = getTimestamp()
@@ -68,7 +67,14 @@ class PageHandler:
             raise
 
         if "text/html" not in content_type:
-            print(f"Page {self.page_url} is not a html site.")
+            print(f"[PageHandler] Page {self.page_url} is not a html site.")
+            type_of_content = get_type_of_content(content_type)
+            if type_of_content:
+                page_data = PageData()
+                page_data.page_id = self.page_id
+                page_data.data_type_code = type_of_content
+                self.session.add(page_data)
+                self.session.commit()
             self.page_db.page_type_code = "BINARY"
             self.page_db.http_status_code = self.status_code
             self.page_db.site_id = self.site_id
@@ -86,7 +92,7 @@ class PageHandler:
         firefox_options.add_argument("user-agent=fri-ieps-kslk")
         firefox_options.add_argument("--headless")
 
-        print(f"Retrieving web page URL '{self.page_url}'")
+        print(f"[PageHandler] Retrieving web page URL '{self.page_url}'")
         self.driver = webdriver.Firefox(options=firefox_options, executable_path=Config.WEB_DRIVER_LOCATION_GECKO)
 
         self.driver.get(self.page_url)
@@ -192,7 +198,7 @@ class PageHandler:
                 url = self.base_url + src
             elif src is not None and ("http" in src or "https" in src):
                 url = src
-            if url != "":
+            if url != "" and len(url) <= 255:
                 # Save the image
                 image = Image()
                 image.page_id = self.page_id
@@ -231,6 +237,21 @@ class PageHandler:
         self.session.add(site)
         self.session.commit()
         return self.session.query(Site).filter(Site.domain == url).first().id
+
+
+def get_type_of_content(content_type):
+    types = {
+        "application/pdf":                                                           "PDF",
+        "application/msword":                                                        "DOC",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document":   "DOCX",
+        "application/vnd.ms-powerpoint":                                             "PPT",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation": "PPTX"
+    }
+
+    if content_type in types:
+        return types[content_type]
+    return None
+
 
 
 def get_domain_name_from_url(url):
