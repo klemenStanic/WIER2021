@@ -63,7 +63,7 @@ class Frontier:
         site_id = self.scheduler.get_free_site()
         if site_id is None:
             return None
-        print(f"Free site: {site_id}")
+        print(f"[Frontier] Free site's id: {site_id}")
         robots_json = self.get_site_robots(site_id)
         #result_site = self.session.query(Site).filter(Site.id == site_id).first()
         result_page = self.session.query(Page).filter(Page.site_id == site_id).filter(Page.page_type_code == 'FRONTIER').order_by(Page.id.asc()).first()
