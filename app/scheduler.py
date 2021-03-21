@@ -41,7 +41,10 @@ class Scheduler:
 
     def update_timestamp(self, site_id):
         site_result = self.session.query(Site).filter(Site.id==site_id).first()
-        site_result.timestamp = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+        #site_result.timestamp = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+        ip_sites = self.session.query(Site).filter(Site.site_ip==site_result.site_ip).all()
+        for site in ip_sites:
+            site.timestamp = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         self.session.commit()
 
     def get_free_site(self):
