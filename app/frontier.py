@@ -88,7 +88,7 @@ class Frontier:
         # handle if crawler is even allowed on url
         for disallow in robots_json['disallow']:
             # if crawler is not allowed on this url, update Page.accessed_time = -1 and call self function again 
-            if disallow == result_page.url[:len(disallow)]:
+            if disallow in result_page.url:
                 result_page.accessed_time = -1
                 result_page.page_type_code = 'DISALLOWED'
                 self.session.commit()
