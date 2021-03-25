@@ -1,6 +1,7 @@
 from models import *
 from scheduler import Scheduler
 import requests
+from reppy.robots import Robots
 
 class Frontier:
     def __init__(self, seed=False, seed_path=None):
@@ -48,6 +49,15 @@ class Frontier:
                 return self.parse_robots('404')
         return self.parse_robots(result_site.robots_content)
 
+    def check_robots(self, page_id):
+        result_page = self.session.query(Page).filter(Page.id==page_id).first()
+        result_site = self.session.query(Site).filter(Site.id==result_page.site_id).first()
+        try:
+            robots = Robots.fetch(f'https://{result_site.domain}/robots.txt')
+        except Exception:
+            return True
+        return robots.allowed(result_page.url, 'fri-ieps-kslk')
+
     def add_root_page(self, site_id):
         site = self.session.query(Site).filter(Site.id==site_id).first()
         # first check if page already exists
@@ -86,12 +96,11 @@ class Frontier:
             self.scheduler.remove_site(site_id)
             return self.get_next_url()  # apperently this site has been crawled and we can check for a new one
         # handle if crawler is even allowed on url
-        for disallow in robots_json['disallow']:
-            # if crawler is not allowed on this url, update Page.accessed_time = -1 and call self function again 
-            if disallow in result_page.url:
-                result_page.page_type_code = 'DISALLOWED'
-                self.session.commit()
-                return self.get_next_url()
+        if not self.check_robots(result_page.id):
+            print(f'[Frontier] Not allowed on page {result_page.id}')
+            result_page.page_type_code = 'DISALLOWED'
+            self.session.commit()
+            return self.get_next_url()
         result_page.page_type_code = None  # we lock this page
         self.session.commit()
         self.scheduler.update_timestamp(site_id)  # update scheduler with new timestamp
