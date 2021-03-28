@@ -36,7 +36,7 @@ It's configured to allow a single visit of a site every 5 seconds.
 This class can be called with `seed_path` parameter, where if given it inserts sites written in seed file into site table of database.
 At each call of `Scheduler.get_free_site()` method, scheduler updates sites in db with ip addresses if they are not there already and selects site which is not finished with crawling and has not been visited in the last 5 seconds and returns it.
 After the crawling site has been selected, `Scheduler.update_timestamp(<site_id>)` should be called, where all sites in database with the same ip address have their timestamp updated to current time and thus are delayed from crawling for 5 seconds.
-If the site has been fully crawled it should be updated in database with `Scheduler.remove_site(<site_ip>)` method, where this site is marked as done.
+If the site has been fully crawled it should be updated in database with `Scheduler.remove_site(<site_id>)` method, where this site is marked as done.
 
 ### Frontier
 Frontiers main function is to select the next page to crawl and its main method is `Frontier.get_next_url()`.
