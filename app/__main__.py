@@ -22,7 +22,6 @@ WORKERS = Config.WORKERS
 LOG_PATH = Config.LOG_PATH
 
 def run_page_handlers(page_id):
-    print("-----------------------------")
     print(f"[Main] Crawling page with id: {page_id}")
     page_handler = None
     try:
@@ -46,7 +45,8 @@ def run_page_handlers(page_id):
         page.page_type_code = 'ERROR'
         session.commit()
         session.close()
-    print("-----------------------------")
+    print(f"[Main] Finished crawling page with id: {page_id}")
+    sys.stdout.flush()
     return
 
 
