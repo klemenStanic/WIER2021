@@ -50,6 +50,8 @@ class Frontier:
                     self.session.commit()
             except Exception:
                 return self.parse_robots('404')
+            except eventlet.Timeout as te:
+                return self.parse_robots('404')
         return self.parse_robots(result_site.robots_content)
 
     def check_robots(self, page_id):
@@ -60,6 +62,8 @@ class Frontier:
             with eventlet.Timeout(3):
                 robots = Robots.fetch(f'http://{result_site.domain}/robots.txt')
         except Exception:
+            return True
+        except eventlet.Timeout as te:
             return True
         return robots.allowed(result_page.url, 'fri-ieps-kslk')
 
