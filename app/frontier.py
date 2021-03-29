@@ -43,9 +43,11 @@ class Frontier:
         result_site = self.session.query(Site).filter(Site.id == site_id).first()
         if result_site.robots_content is None:
             try:
-                resp = requests.get(f'http://{result_site.domain}/robots.txt')
-                result_site.robots_content = resp.text
-                self.session.commit()
+                eventlet.monkey_patch()
+                with eventlet.Timeout(3):
+                    resp = requests.get(f'http://{result_site.domain}/robots.txt')
+                    result_site.robots_content = resp.text
+                    self.session.commit()
             except Exception:
                 return self.parse_robots('404')
         return self.parse_robots(result_site.robots_content)
