@@ -55,7 +55,7 @@ class Frontier:
         result_site = self.session.query(Site).filter(Site.id==result_page.site_id).first()
         try:
             eventlet.monkey_patch()
-            with eventlet.Timeout(10):
+            with eventlet.Timeout(3):
                 robots = Robots.fetch(f'http://{result_site.domain}/robots.txt')
         except Exception:
             return True
