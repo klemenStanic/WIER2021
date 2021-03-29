@@ -28,11 +28,10 @@ def run_page_handlers(page_id):
         page_handler = PageHandler(page_id)
     except Exception as e:
         # Lets close the driver
-        if page_handler:
-            try:
-                page_handler.driver.close()
-            except InvalidSessionIdException:
-                print("[Main] Tried to close the driver after an error, but the driver is already closed.")
+        try:
+            page_handler.driver.close()
+        except Exception:
+            print("[Main] Tried to close the driver after an error, but the driver is already closed.")
 
         print(f"[Main] Error at page: {page_id}")
         # Write log file
