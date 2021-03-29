@@ -4,3 +4,4 @@ selenium==3.141.0
 requests==2.25.1
 urlcanon==0.3.1
 reppy==0.4.14    
+eventlet==0.30.2

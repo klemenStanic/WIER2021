@@ -2,6 +2,7 @@ from models import *
 from scheduler import Scheduler
 import requests
 from reppy.robots import Robots
+import eventlet
 
 class Frontier:
     def __init__(self, seed=False, seed_path=None):
@@ -53,7 +54,9 @@ class Frontier:
         result_page = self.session.query(Page).filter(Page.id==page_id).first()
         result_site = self.session.query(Site).filter(Site.id==result_page.site_id).first()
         try:
-            robots = Robots.fetch(f'http://{result_site.domain}/robots.txt')
+            eventlet.monkey_patch()
+            with eventlet.Timeout(10):
+                robots = Robots.fetch(f'http://{result_site.domain}/robots.txt')
         except Exception:
             return True
         return robots.allowed(result_page.url, 'fri-ieps-kslk')
