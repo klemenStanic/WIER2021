@@ -26,6 +26,9 @@ def run_page_handlers(page_id):
     page_handler = None
     try:
         page_handler = PageHandler(page_id)
+        flag = page_handler.preprocess()
+        if flag:
+            page_handler.main()
     except Exception as e:
         # Lets close the driver
         try:

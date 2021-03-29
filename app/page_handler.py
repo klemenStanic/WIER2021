@@ -42,10 +42,10 @@ class PageHandler:
         self.site_id = self.page_db.site_id
         self.site_db = self.session.query(Site).filter(Site.id == self.site_id).first()
         self.site_url = self.site_db.domain
-
-        self.main()
-
-    def main(self):
+        #self.preprocess()
+        #self.main()
+        
+    def preprocess(self):
         # Lock the page that we are currently working on by setting page_type_code to None --------
         self.page_db.page_type_code = None
         self.session.commit()
@@ -83,8 +83,10 @@ class PageHandler:
             self.session.commit()
             self.session.close()
             #self.driver.close()
-            return
+            return False
+        return True
 
+    def main(self):        
         # The page contains HTML, lets scrape it --------------------------------------------------
         firefox_options = FirefoxOptions()
 
