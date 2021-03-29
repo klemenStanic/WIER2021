@@ -1,7 +1,7 @@
 class Config:
-    SEED = True
+    SEED = False
     SEED_PATH = 'seed.txt'
-    WORKERS = 5
+    WORKERS = 10
     LOG_PATH = 'log'
     RENDERING_TIMEOUT = 5
     WEB_DRIVER_LOCATION_GECKO = "selenium/geckodriver"

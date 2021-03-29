@@ -53,7 +53,7 @@ class Frontier:
         result_page = self.session.query(Page).filter(Page.id==page_id).first()
         result_site = self.session.query(Site).filter(Site.id==result_page.site_id).first()
         try:
-            robots = Robots.fetch(f'https://{result_site.domain}/robots.txt')
+            robots = Robots.fetch(f'http://{result_site.domain}/robots.txt')
         except Exception:
             return True
         return robots.allowed(result_page.url, 'fri-ieps-kslk')
