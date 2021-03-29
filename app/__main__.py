@@ -63,4 +63,4 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as executor:
             time.sleep(1)
             continue
         executor.submit(run_page_handlers, copy.deepcopy(page_id))
-        sleep(1)
+        time.sleep(1)
