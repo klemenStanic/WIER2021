@@ -2,7 +2,6 @@ from models import *
 from scheduler import Scheduler
 import requests
 from reppy.robots import Robots
-import eventlet
 
 class Frontier:
     def __init__(self, seed=False, seed_path=None):
@@ -43,14 +42,10 @@ class Frontier:
         result_site = self.session.query(Site).filter(Site.id == site_id).first()
         if result_site.robots_content is None:
             try:
-                eventlet.monkey_patch()
-                with eventlet.Timeout(3):
-                    resp = requests.get(f'http://{result_site.domain}/robots.txt')
-                    result_site.robots_content = resp.text
-                    self.session.commit()
+                resp = requests.get(f'http://{result_site.domain}/robots.txt', timeout=3)
+                result_site.robots_content = resp.text
+                self.session.commit()
             except Exception:
-                return self.parse_robots('404')
-            except eventlet.Timeout as te:
                 return self.parse_robots('404')
         return self.parse_robots(result_site.robots_content)
 
@@ -58,12 +53,8 @@ class Frontier:
         result_page = self.session.query(Page).filter(Page.id==page_id).first()
         result_site = self.session.query(Site).filter(Site.id==result_page.site_id).first()
         try:
-            eventlet.monkey_patch()
-            with eventlet.Timeout(3):
-                robots = Robots.fetch(f'http://{result_site.domain}/robots.txt')
+            robots = Robots.fetch(f'http://{result_site.domain}/robots.txt', timeout=3)
         except Exception:
-            return True
-        except eventlet.Timeout as te:
             return True
         return robots.allowed(result_page.url, 'fri-ieps-kslk')
 
