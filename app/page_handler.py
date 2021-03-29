@@ -82,7 +82,7 @@ class PageHandler:
             self.page_db.accessed_time = getTimestamp()
             self.session.commit()
             self.session.close()
-            #self.driver.close()
+            #self.driver.quit()
             return False
         return True
 
@@ -96,6 +96,7 @@ class PageHandler:
 
         print(f"[PageHandler] Retrieving web page URL '{self.page_url}'")
         self.driver = webdriver.Firefox(options=firefox_options, executable_path=Config.WEB_DRIVER_LOCATION_GECKO)
+        self.driver.set_page_load_timeout(10)
 
         self.driver.get(self.page_url)
 
@@ -118,7 +119,7 @@ class PageHandler:
             self.page_db.content_hash = self.hashed_content
             self.session.commit()
             self.session.close()
-            self.driver.close()
+            self.driver.quit()
             return
 
         # The page is valid html and its not a duplicate, now we extract all the links on the page ---
@@ -222,7 +223,7 @@ class PageHandler:
 
         # Lets be responsible and close the session and the driver
         self.session.close()
-        self.driver.close()
+        self.driver.quit()
 
     def get_site_id_for_page(self, url):
         """

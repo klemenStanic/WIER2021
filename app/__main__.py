@@ -32,7 +32,7 @@ def run_page_handlers(page_id):
     except Exception as e:
         # Lets close the driver
         try:
-            page_handler.driver.close()
+            page_handler.driver.quit()
         except Exception:
             print("[Main] Tried to close the driver after an error, but the driver is already closed.")
 
