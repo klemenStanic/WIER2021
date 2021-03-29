@@ -89,10 +89,10 @@ class Frontier:
             self.get_sitemap(site_id, robots_json['sitemap'])
         #result_site = self.session.query(Site).filter(Site.id == site_id).first()
         result_page = self.session.query(Page).filter(Page.site_id == site_id).filter(Page.page_type_code == 'FRONTIER').order_by(Page.id.asc()).first()
-        all_pages = self.session.query(Page).filter(Page.site_id == site_id).all()
-        if result_page is None and len(all_pages) == 0:  # we check if we need to add root page
+        all_pages_count = self.session.query(Page).filter(Page.site_id == site_id).count()
+        if result_page is None and all_pages_count == 0:  # we check if we need to add root page
             result_page = self.add_root_page(site_id)
-        elif result_page is None and len(all_pages) != 0:
+        elif result_page is None and all_pages_count != 0:
             self.scheduler.remove_site(site_id)
             return self.get_next_url()  # apperently this site has been crawled and we can check for a new one
         # handle if crawler is even allowed on url
