@@ -1,5 +1,9 @@
 # WebCrawler
 ## Setting up database
+Our database backup is located on this link. We couldn't upload it to github because it's to large.
+https://drive.google.com/file/d/1D4m2isYIRqKJL64mH-kaQP5KM4yLOugT/view?usp=sharing
+
+
 Run these commands. Make sure you have correct rights (sudo).
 ```
 docker-compose -f docker-compose.yml up -d
