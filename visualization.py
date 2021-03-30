@@ -8,7 +8,7 @@ graph = nx.DiGraph()
 
 sites = session.query(Site).all()
 pages = session.query(Page).all()
-links = session.query(Link).all()[:1000]
+links = session.query(Link).all()#[:1000]
 
 for site in sites:
     graph.add_node(site.domain)
@@ -31,35 +31,50 @@ for link in links:
     c += 1
 
 
-e_1 = [(u, v) for (u, v, d) in graph.edges(data=True) if 1 < d["weight"] <= 50]
-e_2 = [(u, v) for (u, v, d) in graph.edges(data=True) if 50 < d["weight"] <= 100]
-e_3 = [(u, v) for (u, v, d) in graph.edges(data=True) if 100 < d["weight"]]
+# -------------------------------------------------------------------------------
+pos = nx.spring_layout(graph)
+all_weights = []
+for (node1, node2, data) in graph.edges(data=True):
+    all_weights.append(data['weight'])  # we'll use this when determining edge thickness
+
+# 4 b. Get unique weights
+unique_weights = list(set(all_weights))
+all_edges = [(node1, node2, edge_attr['weight']) for (node1, node2, edge_attr) in graph.edges(data=True)]
+
+print("calculating edge sizes")
+# 4 c. Plot the edges - one by one!
+for weight in unique_weights:
+    # 4 d. Form a filtered list with just the weight you want to draw
+    weighted_edges = []
+    print(f'{len(all_edges)}\r')
+    i = 0
+    while i < len(all_edges):
+        if all_edges[i][2] == weight:
+            weighted_edges.append((all_edges[i][0], all_edges[i][1]))
+            all_edges.pop(i)
+        i += 1
+
+    #weighted_edges = [(node1, node2) for (node1, node2, edge_attr) in graph.edges(data=True) if edge_attr['weight'] == weight]
+    # 4 e. I think multiplying by [num_nodes/sum(all_weights)] makes the graphs edges look cleaner
+    width = weight * graph.number_of_nodes() * 5.0 / sum(all_weights)
+    nx.draw_networkx_edges(graph, pos, edgelist=weighted_edges, width=width)
 
 
-pos = nx.spring_layout(graph, seed=7)  # positions for all nodes - seed for reproducibility
 
 # nodes
-nx.draw_networkx_nodes(graph, pos, node_size=700)
-
-# edges
-nx.draw_networkx_edges(graph, pos, edgelist=e_1, width=4)
-nx.draw_networkx_edges(graph, pos, edgelist=e_1, width=8)
-nx.draw_networkx_edges(graph, pos, edgelist=e_1, width=16)
+nx.draw_networkx_nodes(graph, pos, node_size=100)
+nx.draw_networkx_nodes(graph, pos, nodelist=['www.gov.si', 'evem.gov.si', 'e-uprava.gov.si','e-prostor.gov.si'], node_size=100, node_color='red')
 
 
 # labels
-nx.draw_networkx_labels(graph, pos, font_size=20, font_family="sans-serif")
+nx.draw_networkx_labels(graph, pos, font_size=10, font_family="sans-serif")
+
+sites = None
+pages = None
+links = None
 
 ax = plt.gca()
 plt.axis("off")
 plt.tight_layout()
+#plt.savefig('images/network_graph.png')
 plt.show()
-
-
-
-"""
-pos = nx.spring_layout(graph) #there are other layouts that you might want to try.
-nx.draw_networkx_nodes(graph, pos, node_color='blue')
-plt.show()
-"""
-
