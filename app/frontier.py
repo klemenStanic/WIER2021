@@ -27,13 +27,6 @@ class Frontier:
         if '404' in robots_text:
             return robots_json
 
-        for line in robots_text.replace('\r,' ,'').split('\n'):
-            if "Disallow:" in line:
-                robots_json['disallow'].append(line.split(' ')[1])
-            elif "Allow:" in line:
-                robots_json['allow'].append(line.split(' ')[1])
-            elif "Sitemap:" in line:
-                robots_json['sitemap'] = line.split(' ')[1]
         return robots_json
 
     def get_site_robots(self, site_id):
