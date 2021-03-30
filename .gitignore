@@ -1,6 +1,6 @@
-venv
-database/target
-.idea
-app/__pycache__
-*.log
-log/*
+pa1/crawler/venv
+pa1/crawler/database/target
+pa1/crawler/.idea
+pa1/crawler/app/__pycache__
+pa1/crawler/*.log
+pa1/crawler/log/*

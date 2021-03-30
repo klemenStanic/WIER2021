@@ -126,7 +126,6 @@ class PageHandler:
         links = []
 
         # First, we extract the links with tag name "a"
-        # TODO: this section could use some work
         elems = self.driver.find_elements_by_tag_name("a")
         for elem in elems:
             href = elem.get_attribute('href')
