@@ -7,7 +7,6 @@ session = Session(engine)
 graph = nx.DiGraph()
 
 sites = session.query(Site).all()
-pages = session.query(Page).all()
 links = session.query(Link).all()#[:1000]
 
 for site in sites:
