@@ -1,6 +1,7 @@
 import re
 import sys
 import json
+import codecs
 
 json_rtv = {
     "Author": "",
@@ -11,19 +12,27 @@ json_rtv = {
     "Content": ""
 }
 
+json_overstock = {
+        "Title": "",
+        "ListPrice": "",
+        "Price": "",
+        "Saving": "",
+        "SavingPercent": "",
+        "Content": ""
+}
 
-def read_file(path):
-    content = ""
-    with open(path, "r") as file:
+
+def read_file(path, encoding):
+    with codecs.open(path, encoding=encoding) as file:
         content = file.readlines()
     return "".join(content)
 
 
 def extract_rtv_regexp(html):
     """
-    Do extraction.
-    :param html:
-    :return:
+    Extracts and prints the content of the webpage rtv.si.
+    :param html: HTML page content
+    :return: None
     """
     res = re.search('<div class="author-name">(?P<Author>.*?)</div>', html)
     Author = res.groupdict()["Author"].strip()
@@ -51,8 +60,52 @@ def extract_rtv_regexp(html):
 
     json_rtv["Content"] = clean_content(Content)
 
-    print(json.dumps(json_rtv, indent=4, sort_keys=True).encode("utf8").decode("utf8"))
+    print(json.dumps(json_rtv, indent=4, ensure_ascii=False))
 
+
+def extract_overstock_regexp(html):
+    """
+        Extracts and prints the content of the overstock webpage.
+        :param html: HTML page content
+        :return: None
+        "Title": "",
+        "ListPrice": "",
+        "Price": "",
+        "Saving": "",
+        "SavingPercent": "",
+        "Content": ""
+        """
+    out = []
+    results = re.findall('<td valign="top">..<a.*?</tbody></table></td>', html, flags=re.S)
+    for el in results:
+        item = {}
+        res = re.search('<a href=".*?<b>(?P<Title>.*?)</b>', el)
+        Title = res.groupdict()["Title"].strip()
+        item["Title"] = Title
+
+        res = re.search('<b>List Price:</b>.*<s>(?P<ListPrice>.*?)</s>', el)
+        ListPrice = res.groupdict()["ListPrice"].strip()
+        item["ListPrice"] = ListPrice
+
+        res = re.search('<b>Price:</b>.*?<b>(?P<Price>.*?)</b>', el)
+        Price = res.groupdict()["Price"].strip()
+        item["Price"] = Price
+
+        res = re.search('<b>You Save:</b>.*?littleorange">(?P<Saving>.*) \(', el)
+        Saving = res.groupdict()["Saving"].strip()
+        item["Saving"] = Saving
+
+        res = re.search('<b>You Save:</b>.*?littleorange">.*?\((?P<SavingPercent>.*)\)', el)
+        SavingPercent = res.groupdict()["SavingPercent"].strip()
+        item["SavingPercent"] = SavingPercent
+
+        res = re.search('<td valign="top"><span class="normal">(?P<Content>.*?)<br>', el, flags=re.S)
+        Content = res.groupdict()["Content"].strip()
+        item["Content"] = Content
+
+        out.append(item)
+
+    print(json.dumps(out, indent=4, ensure_ascii=False))
 
 def clean_content(content):
     clean = re.compile('<script(.|\s)*?</script>', flags=re.MULTILINE)
@@ -67,7 +120,7 @@ def clean_content(content):
     clean = re.compile('\s\s+', flags=re.MULTILINE)
     content = re.sub(clean, '', content)
 
-    clean = re.compile('<.*?>')
+    clean = re.compile('<.*?>', flags=re.MULTILINE)
     content = re.sub(clean, '', content)
     return content
 
@@ -75,19 +128,27 @@ def clean_content(content):
 def main():
     if sys.argv[1] == "A":
         content = read_file(
-            "../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html")
+           "../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html", "utf-8")
         extract_rtv_regexp(content)
 
         print(" ------------------------------------ ")
 
         content = read_file(
-            "../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html")
+           "../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html", "utf-8")
         extract_rtv_regexp(content)
 
+        print(" ------------------------------------ ")
+        print(" ------------------------------------ ")
 
+        content = read_file(
+            "../input-extraction/overstock.com/jewelry01.html", "iso-8859-1")
+        extract_overstock_regexp(content)
 
+        print(" ------------------------------------ ")
 
-
+        content = read_file(
+            "../input-extraction/overstock.com/jewelry02.html", "iso-8859-1")
+        extract_overstock_regexp(content)
 
 
 if __name__ == "__main__":
