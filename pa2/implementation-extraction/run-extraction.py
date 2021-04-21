@@ -115,11 +115,6 @@ def extract_altstore_regexp(html):
         Extracts and prints the content of the altstore webpage.
         :param html: HTML page content
         :return: None
-            "Title": "",
-            "Price": "",
-            "ListPrice": "",
-            "Description": ""
-               <small class="options_list">  Diagonala zaslona: 39,6 cm (15,6")<br>  Procesor: Intel i5<br>  Grafika: Integrirana<br>  RAM: 16GB<br>  HDD: 512GB SSD<br></small>
     """
     out = []
     results = re.findall('<div class="card .*?</div>.</div>', html, flags=re.S)
@@ -167,37 +162,43 @@ def clean_content(content):
     content = re.sub(clean, '', content)
     return content
 
+
 def run_regex():
     # RTV SLO
-    # content = read_file(
-    #     "../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html", "utf-8")
-    # extract_rtv_regexp(content)
-    #
-    # print(" ------------------------------------ ")
-    #
-    # content = read_file(
-    #     "../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html",
-    #     "utf-8")
-    # extract_rtv_regexp(content)
-    #
-    # print(" ------------------------------------ ")
-    # print(" ------------------------------------ ")
-    #
-    # # overstock
-    # content = read_file(
-    #     "../input-extraction/overstock.com/jewelry01.html", "iso-8859-1")
-    # extract_overstock_regexp(content)
-    #
-    # print(" ------------------------------------ ")
-    #
-    # content = read_file(
-    #     "../input-extraction/overstock.com/jewelry02.html", "iso-8859-1")
-    # extract_overstock_regexp(content)
+    content = read_file(
+        "../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html", "utf-8")
+    extract_rtv_regexp(content)
+
+    print(" ------------------------------------ ")
+
+    content = read_file(
+        "../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html",
+        "utf-8")
+    extract_rtv_regexp(content)
+
+    print(" ------------------------------------ ")
+    print(" ------------------------------------ ")
+
+    # overstock
+    content = read_file(
+        "../input-extraction/overstock.com/jewelry01.html", "iso-8859-1")
+    extract_overstock_regexp(content)
+
+    print(" ------------------------------------ ")
+
+    content = read_file(
+        "../input-extraction/overstock.com/jewelry02.html", "iso-8859-1")
+    extract_overstock_regexp(content)
+
+    print(" ------------------------------------ ")
+    print(" ------------------------------------ ")
 
     # Altstore
-    # content = read_file(
-    #     "../input-extraction/altstore.si/Gaming prenosniki ACER - AltStore.html", "utf-8")
-    # extract_altstore_regexp(content)
+    content = read_file(
+        "../input-extraction/altstore.si/Gaming prenosniki ACER - AltStore.html", "utf-8")
+    extract_altstore_regexp(content)
+
+    print(" ------------------------------------ ")
 
     content = read_file(
         "../input-extraction/altstore.si/Gaming prenosniki ASUS - AltStore.html", "utf-8")
@@ -207,8 +208,6 @@ def run_regex():
 def main():
     if sys.argv[1] == "A":
         run_regex()
-
-
 
 
 if __name__ == "__main__":
