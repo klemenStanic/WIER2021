@@ -73,8 +73,7 @@ def extract_altstore_path(path):
     for i in data:
         print(i)
 
-
-if __name__ == '__main__':
+def run_xpath():
     extract_rtvslo_xpath('../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html')
     extract_rtvslo_xpath('../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html')
 
