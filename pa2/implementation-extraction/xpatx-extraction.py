@@ -58,13 +58,28 @@ def extract_overstock_xpath(path):
 
 
 def extract_altstore_path(path):
-    pass
+    data = []
+    tree = lxml.etree.parse(path, lxml.etree.HTMLParser())
+
+    for item in tree.xpath('.//div[@class="card "]'):
+        data_item = dict()
+        data_item['Title'] = item.xpath('.//h4[@class="fixed-lines-2"]/a')[0].text
+        data_item['Price'] = item.xpath('.//span[@class="old-price"]')[0].text
+        data_item['ListPrice'] = item.xpath('.//span[@class="new-price"]')[0].text
+        data_item['Description'] = clean_content(lxml.etree.tounicode(item.xpath('.//small[@class="options_list"]')[0]))
+        data_item['Storage'] = item.xpath('.//div[2]/span')[0].text.strip()
+        data.append(data_item)
+
+    for i in data:
+        print(i)
+
 
 if __name__ == '__main__':
-    #extract_rtvslo_xpath('../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html')
-    #extract_rtvslo_xpath('../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html')
+    extract_rtvslo_xpath('../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html')
+    extract_rtvslo_xpath('../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html')
 
-    #extract_overstock_xpath('../input-extraction/overstock.com/jewelry01.html')
-    #extract_overstock_xpath('../input-extraction/overstock.com/jewelry02.html')
+    extract_overstock_xpath('../input-extraction/overstock.com/jewelry01.html')
+    extract_overstock_xpath('../input-extraction/overstock.com/jewelry02.html')
 
-    extract_altstore_path('')
+    extract_altstore_path('../input-extraction/altstore.si/Gaming prenosniki ACER - AltStore.html')
+    extract_altstore_path('../input-extraction/altstore.si/Gaming prenosniki ASUS - AltStore.html')
