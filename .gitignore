@@ -5,3 +5,4 @@ pa1/crawler/app/__pycache__
 pa1/crawler/*.log
 pa1/crawler/log/*
 venv/
+.idea/
