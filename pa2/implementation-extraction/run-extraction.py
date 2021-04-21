@@ -13,12 +13,20 @@ json_rtv = {
 }
 
 json_overstock = {
-        "Title": "",
-        "ListPrice": "",
-        "Price": "",
-        "Saving": "",
-        "SavingPercent": "",
-        "Content": ""
+    "Title": "",
+    "ListPrice": "",
+    "Price": "",
+    "Saving": "",
+    "SavingPercent": "",
+    "Content": ""
+}
+
+json_altstore = {
+    "Title": "",
+    "Price": "",
+    "ListPrice": "",
+    "Description": "",
+    "Storage": ""
 }
 
 
@@ -68,12 +76,6 @@ def extract_overstock_regexp(html):
         Extracts and prints the content of the overstock webpage.
         :param html: HTML page content
         :return: None
-        "Title": "",
-        "ListPrice": "",
-        "Price": "",
-        "Saving": "",
-        "SavingPercent": "",
-        "Content": ""
         """
     out = []
     results = re.findall('<td valign="top">..<a.*?</tbody></table></td>', html, flags=re.S)
@@ -107,6 +109,47 @@ def extract_overstock_regexp(html):
 
     print(json.dumps(out, indent=4, ensure_ascii=False))
 
+
+def extract_altstore_regexp(html):
+    """
+        Extracts and prints the content of the altstore webpage.
+        :param html: HTML page content
+        :return: None
+            "Title": "",
+            "Price": "",
+            "ListPrice": "",
+            "Description": ""
+               <small class="options_list">  Diagonala zaslona: 39,6 cm (15,6")<br>  Procesor: Intel i5<br>  Grafika: Integrirana<br>  RAM: 16GB<br>  HDD: 512GB SSD<br></small>
+    """
+    out = []
+    results = re.findall('<div class="card .*?</div>.</div>', html, flags=re.S)
+    for el in results:
+        item = {}
+        res = re.search('<h4 class="fixed-lines-2"><a href.*?">(?P<Title>.*?)</a></h4>', el)
+        Title = res.groupdict()["Title"].strip()
+        item["Title"] = Title
+
+        res = re.search('<span class="old-price">(?P<Price>.*?)</span>', el)
+        Price = res.groupdict()["Price"].strip()
+        item["Price"] = Price
+
+        res = re.search('<span class="new-price">(?P<ListPrice>.*?)</span>', el)
+        ListPrice = res.groupdict()["ListPrice"].strip()
+        item["ListPrice"] = ListPrice
+
+        res = re.search('<small class="options_list">(?P<Description>.*?)</small>', el)
+        Description = res.groupdict()["Description"].strip().replace("<br>", "\n")
+        item["Description"] = Description
+
+        res = re.search('<div class="stock-info.*?<span>.(?P<Storage>.*?)<a href', el, flags=re.S)
+        Storage = res.groupdict()["Storage"].strip()
+        item["Storage"] = Storage
+
+        out.append(item)
+
+    print(json.dumps(out, indent=4, ensure_ascii=False))
+
+
 def clean_content(content):
     clean = re.compile('<script(.|\s)*?</script>', flags=re.MULTILINE)
     content = re.sub(clean, '', content)
@@ -124,31 +167,48 @@ def clean_content(content):
     content = re.sub(clean, '', content)
     return content
 
+def run_regex():
+    # RTV SLO
+    # content = read_file(
+    #     "../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html", "utf-8")
+    # extract_rtv_regexp(content)
+    #
+    # print(" ------------------------------------ ")
+    #
+    # content = read_file(
+    #     "../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html",
+    #     "utf-8")
+    # extract_rtv_regexp(content)
+    #
+    # print(" ------------------------------------ ")
+    # print(" ------------------------------------ ")
+    #
+    # # overstock
+    # content = read_file(
+    #     "../input-extraction/overstock.com/jewelry01.html", "iso-8859-1")
+    # extract_overstock_regexp(content)
+    #
+    # print(" ------------------------------------ ")
+    #
+    # content = read_file(
+    #     "../input-extraction/overstock.com/jewelry02.html", "iso-8859-1")
+    # extract_overstock_regexp(content)
+
+    # Altstore
+    # content = read_file(
+    #     "../input-extraction/altstore.si/Gaming prenosniki ACER - AltStore.html", "utf-8")
+    # extract_altstore_regexp(content)
+
+    content = read_file(
+        "../input-extraction/altstore.si/Gaming prenosniki ASUS - AltStore.html", "utf-8")
+    extract_altstore_regexp(content)
+
 
 def main():
     if sys.argv[1] == "A":
-        content = read_file(
-           "../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html", "utf-8")
-        extract_rtv_regexp(content)
+        run_regex()
 
-        print(" ------------------------------------ ")
 
-        content = read_file(
-           "../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html", "utf-8")
-        extract_rtv_regexp(content)
-
-        print(" ------------------------------------ ")
-        print(" ------------------------------------ ")
-
-        content = read_file(
-            "../input-extraction/overstock.com/jewelry01.html", "iso-8859-1")
-        extract_overstock_regexp(content)
-
-        print(" ------------------------------------ ")
-
-        content = read_file(
-            "../input-extraction/overstock.com/jewelry02.html", "iso-8859-1")
-        extract_overstock_regexp(content)
 
 
 if __name__ == "__main__":
