@@ -32,6 +32,19 @@ def preprocess_html(path):
     return tree
 
 
+def compare_node(node1, node2):
+    if node1.tag != node2.tag:
+        return False
+    if len(node1.attrib) != len(node2.attrib):
+        return False
+    for att in node1.attrib:
+        if att not in node2.attrib:
+            return False
+        elif node1.attrib[att] != node2.attrib[att]:
+            return False
+    return True
+
+
 def road_runner(wrapper_page, comparison_page):
     """
     Each page (wrapper and comparison) have their own 2 queues. At each iteration we take nodes from one (picking) queue and fill the other.
@@ -49,8 +62,8 @@ def road_runner(wrapper_page, comparison_page):
         while min(len(wrapper_queue[q_idx]), len(comparison_queue[q_idx])) > 0:  # stops whene one picking queue is empty
             wrapper_node = wrapper_queue[q_idx].pop(0)
             comparison_node = comparison_queue[q_idx].pop(0)
+            comp_result = compare_node(wrapper_node, comparison_node)
 
-            # TODO: compare nodes
 
         queue_idx = fill_idx
 
