@@ -1,5 +1,6 @@
 import lxml
 import lxml.etree
+import copy
 
 
 def preprocess_html(path):
@@ -8,13 +9,16 @@ def preprocess_html(path):
     tree.getroot().remove(head)
 
     def walk(node):
-        cleaner_tag = ['img', 'script', 'input', 'button', 'select', 'style']
-        cleaner_attrib = ['href', 'style', 'click-event', 'event-payload', 'rel',
-                          'js-id', 'role', 'tabindex', 'aria-live', 'aria-relevant',
-                          'align', 'valign', 'nowrap', 'colspan', 'bgcolor',
-                          'height', 'width', 'border', 'cellpadding', 'cellspacing',
-                          'shape', 'coords', 'target', 'onmouseover', 'topmargin', 'onload',
-                          'leftmargin', 'rightmargin', 'marginwidth', 'marginheight', 'text']
+        cleaner_tag = ['img', 'script', 'input', 'button', 'select', 'style', 'iframe', 'form', 'figure', 'svg']
+        cleaner_attrib = ['href', 'style', 'click-event', 'event-payload', 'rel', 'aria-expanded',
+                          'js-id', 'role', 'tabindex', 'aria-live', 'aria-relevant', 'aria-haspopup',
+                          'align', 'valign', 'nowrap', 'colspan', 'bgcolor', 'onclick', 'aria-hidden',
+                          'height', 'width', 'border', 'cellpadding', 'cellspacing', 'aria-labelledby',
+                          'shape', 'coords', 'target', 'onmouseover', 'topmargin', 'onload', 'data-locked',
+                          'leftmargin', 'rightmargin', 'marginwidth', 'marginheight', 'text', 'data-commentsdisabled',
+                          'data-toggle', 'data-target', 'ref', 'data-newsid', 'data-commentid', 'data-commentsmoderated']
+        if 'id' in node.attrib and 'bar-share-icons' == node.attrib['id']:
+            print("hoy")
         if node.tag in cleaner_tag:
             node.getparent().remove(node)
             return
@@ -28,14 +32,39 @@ def preprocess_html(path):
     return tree
 
 
-def road_runner(page1, page2):
-    pass
+def road_runner(wrapper_page, comparison_page):
+    """
+    Each page (wrapper and comparison) have their own 2 queues. At each iteration we take nodes from one (picking) queue and fill the other.
+    At the end of each iteration we switch these queues.
+    :param wrapper_page:
+    :param comparison_page:
+    :return:
+    """
+    wrapper_queue = [[wrapper_page.getroot()], []]
+    comparison_queue = [[comparison_page.getroot()], []]
+    q_idx = 0
+
+    while max(len(wrapper_queue[0]), len(wrapper_queue[1]), len(comparison_queue[0]), len(comparison_queue[1])) > 0:  # stops when all 4 queues are empty
+        fill_idx = (q_idx + 1) % 2  # we are filling the other queue
+        while min(len(wrapper_queue[q_idx]), len(comparison_queue[q_idx])) > 0:  # stops whene one picking queue is empty
+            wrapper_node = wrapper_queue[q_idx].pop(0)
+            comparison_node = comparison_queue[q_idx].pop(0)
+
+            # TODO: compare nodes
+
+        queue_idx = fill_idx
 
 
 if __name__ == '__main__':
-    path = '../input-extraction/altstore.si/Gaming prenosniki ASUS - AltStore.html'
-    path = '../input-extraction/overstock.com/jewelry01.html'
-    path = '../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html'
-    body1 = preprocess_html(path)
-    print(lxml.etree.tounicode(body1))
-    body1.write('temp.html', pretty_print=True)
+    path_altstore1 = '../input-extraction/altstore.si/Gaming prenosniki ASUS - AltStore.html'
+    path_overstock1 = '../input-extraction/overstock.com/jewelry01.html'
+    path_rtv1 = '../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html'
+    path_rtv2 = '../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html'
+
+    body1 = preprocess_html(path_rtv1)
+    body2 = preprocess_html(path_rtv2)
+
+    road_runner(body1, body2)
+
+    # print(lxml.etree.tounicode(body1))
+    # body1.write('temp.html', pretty_print=True)
