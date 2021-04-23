@@ -9,19 +9,19 @@ class RoadRunner():
     wrapper_idx = 0
 
     def __init__(self, wrapper_path, sample_path):
-        parser = RRHtmlParser()
-        html_data = parser.preprocess_html_file(wrapper_path)
-        parser.feed(html_data)
-        self.wrapper = deepcopy(parser.data)
+        parser1 = RRHtmlParser()
+        html_data = parser1.preprocess_html_file(wrapper_path)
+        parser1.feed(html_data)
+        self.wrapper = deepcopy(parser1.data)
         parser = RRHtmlParser()
         html_data = parser.preprocess_html_file(sample_path)
         parser.feed(html_data)
-        self.sample = deepcopy(parser.data)
+        self.sample = deepcopy(parser.data[len(self.wrapper):])
 
     def __repr__(self):
         out = ''
         for el in self.wrapper:
-            out += el.name + '\n'
+            out += str(el) + '\n'
         return out
 
     def square_match(self, lower_idx, upper_idx):
@@ -58,7 +58,7 @@ class RoadRunner():
                     break
             idx += 1
 
-        if idx == len(self.wrapper) - 1:  # we are at the end, must be optional
+        if idx == len(self.wrapper):  # we are at the end, must be optional
             return False
 
         square[0].is_square_start = True
@@ -95,19 +95,25 @@ class RoadRunner():
         return self.find_square()
 
     def find_optional(self):
-        if self.wrapper[self.wrapper_idx].name == self.sample[self.sample_idx + 1]:
-            # sample has optional element
-            self.sample[self.sample_idx + 1].is_optional = True
-            self.wrapper.insert(self.wrapper_idx, self.sample[self.sample_idx + 1])
-            self.sample_idx += 1
-        else:
-            self.wrapper[self.wrapper_idx].is_optional = True
-            self.wrapper_idx += 1
+        for idx in range(self.wrapper_idx, len(self.wrapper)):
+            if self.wrapper[idx].name == self.sample[self.sample_idx].name:
+                for el in self.wrapper[self.wrapper_idx:idx]:
+                    el.is_optional = True
+                    self.wrapper_idx += 1
+                return
+        for idx in range(self.sample_idx, len(self.sample)):
+            if self.sample[idx].name == self.wrapper[self.wrapper_idx].name:
+                for el in self.sample[self.sample_idx:idx]:
+                    el.is_optional = True
+                    self.wrapper.insert(self.wrapper_idx, el)
+                    self.wrapper_idx += 1
+                    self.sample_idx += 1
+                return
 
     def main(self):
         while self.wrapper_idx < len(self.wrapper) and self.sample_idx < len(self.sample):  # run until the end of either the wrapper or sample
             sample_element = self.sample[self.sample_idx]
-            wrapper_element = self.wrapper[self.sample_idx]
+            wrapper_element = self.wrapper[self.wrapper_idx]
 
             if sample_element.name == wrapper_element.name:  # check for tag mismatch, if the elements match, we continue
                 self.wrapper_idx += 1
