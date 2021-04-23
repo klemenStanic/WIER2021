@@ -166,12 +166,27 @@ class RoadRunner():
                 if not result:
                     self.find_optional()
 
-
+# test pages
 wrapper_path = './test_page_1.html'
 sample_path = './test_page_2.html'
+
+# alstore
+#wrapper_path = '../input-extraction/altstore.si/Gaming prenosniki ASUS - AltStore.html'
+#sample_path = '../input-extraction/altstore.si/Gaming prenosniki ACER - AltStore.html'
+
+# rtv
+#wrapper_path = '../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html'
+#sample_path = '../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html'
+
+# overstock
+#wrapper_path = '../input-extraction/overstock.com/jewelry01.html'
+#sample_path = '../input-extraction/overstock.com/jewelry02.html'
+
+
+# TODO: fix optional only in one line ()?
 
 if __name__ == '__main__':
     rr = RoadRunner(wrapper_path, sample_path)
     rr.main()
-    print(rr)
-
+    with open('wrapper.html', 'w') as file:
+        file.write(str(rr))

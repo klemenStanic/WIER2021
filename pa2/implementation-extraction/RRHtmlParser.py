@@ -15,12 +15,16 @@ class Element:
         self.is_end_tag = is_end_tag
 
     def __repr__(self):
+        attrs = ' '
+        if self.attrs is not None:
+            for k in self.attrs:
+                attrs += f'{k} '
         if self.is_optional:
-            return f'({self.name})?'
+            return f'({self.name}{attrs})?'
         elif self.is_square_start:
-            return f'({self.name}'
+            return f'({self.name}{attrs}'
         elif self.is_square_end:
-            return f'{self.name})+'
+            return f'{self.name}{attrs})+'
         else:
             return self.name
 
@@ -55,6 +59,7 @@ class RRHtmlParser(HTMLParser):
                               'data-commentsdisabled',
                               'data-toggle', 'data-target', 'ref', 'data-newsid', 'data-commentid',
                               'data-commentsmoderated']
+            cleaner_attrib = []
             if node.tag in cleaner_tag:
                 node.getparent().remove(node)
                 return
