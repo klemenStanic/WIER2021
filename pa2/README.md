@@ -1,5 +1,3 @@
-
-
 # Road Runner
 Overview:
 1) Clean the data 
@@ -32,4 +30,3 @@ while wrapper_index is not equal to wrapper.length and sample_index is not equal
     if find_the_iterator returns false:
         find_the_optional
 ```
-
