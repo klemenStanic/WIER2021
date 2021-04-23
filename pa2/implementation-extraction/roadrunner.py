@@ -24,14 +24,19 @@ class RoadRunner():
             out += str(el) + '\n'
         return out
 
-    def square_match(self, lower_idx, upper_idx):
+    def square_match(self, lower_idx, upper_idx, on_wrapper = True):
         """
         :param lower_idx: next_terminal_idx
         :param upper_idx: terminal_idx
         :return: boolean
         """
+        data = self.wrapper if on_wrapper else self.sample
         square = []
-        for lower_el, upper_el in zip(self.wrapper[upper_idx+1:lower_idx+1:-1], self.wrapper[0:upper_idx:-1]):
+        data_a = data[upper_idx+1:lower_idx+1]
+        data_a.reverse()
+        data_b = data[0:upper_idx+1]
+        data_b.reverse()
+        for lower_el, upper_el in zip(data_a, data_b):
             if lower_el.name == upper_el.name:
                 square.append(lower_el)
                 continue
@@ -40,25 +45,35 @@ class RoadRunner():
             else:
                 return None
 
+        square.reverse()
         return square
 
     def find_square(self):
         terminal_tag = self.wrapper[self.wrapper_idx - 1]
         #   next_terminal_idx = self.wrapper_idx + 1
         idx = self.wrapper_idx
+        square = None
+        w_flag = False
 
-        # finding square
+        # finding square in wrapper
         while idx < len(self.wrapper):
             if self.wrapper[idx].name == terminal_tag.name:
-                # TODO: čekiraj matche v kontra smere od idx in self.wrapper_idx (istočasno po gor)
-                # TODO: result = square matching(idx, self.wrapper_idx)
-                # TODO: if not result -> continue while loop
                 square = self.square_match(idx, self.wrapper_idx - 1)
+                if square is not None:
+                    w_flag = True
+                    break
+            idx += 1
+
+        # finding square in sample
+        idx = self.sample_idx
+        while idx < len(self.sample) and square is None:
+            if self.sample[idx].name == terminal_tag.name:
+                square = self.square_match(idx, self.sample_idx - 1, on_wrapper=False)
                 if square is not None:
                     break
             idx += 1
 
-        if idx == len(self.wrapper):  # we are at the end, must be optional
+        if square is None:  # we are at the end, must be optional
             return False
 
         square[0].is_square_start = True
@@ -67,25 +82,38 @@ class RoadRunner():
         # TODO: handle idx na koncu wrapperja
         # finding the first and last occurence of square
         start_iterator_idx = self.wrapper_idx
-        end_iterator_idx = start_iterator_idx + len(square)
+        end_iterator_idx = start_iterator_idx # + len(square)
 
         while 0 <= start_iterator_idx:
             if self.wrapper[start_iterator_idx - len(square)].name != square[0].name:
                 break
+            start_iterator_idx -= len(square)
 
         while end_iterator_idx < len(self.wrapper):
-            if self.wrapper[end_iterator_idx].name != square[-1].name:
+            tmp_idx = end_iterator_idx + len(square) - (1 if w_flag else 0)
+            if tmp_idx >= len(self.wrapper) or self.wrapper[tmp_idx].name != square[-1].name:
                 break
-                # removing squares from wrapper
+            end_iterator_idx += len(square)
 
-        for i in range(start_iterator_idx, end_iterator_idx + 1):
-            self.wrapper.pop(i)
+        # removing squares from wrapper
+        for i in range(start_iterator_idx, end_iterator_idx):
+            self.wrapper.pop(start_iterator_idx)
         # inserting square into wrapper
         for el in square:
             self.wrapper.insert(start_iterator_idx, el)
             start_iterator_idx += 1
         # set wrapper index on the end of square iterator
         self.wrapper_idx = start_iterator_idx
+
+        #TODO: sample vrtenje idx naprej
+        while True:
+                tmp_idx = self.sample_idx + len(square) - 1
+                if tmp_idx >= len(self.sample):
+                    break
+                elif self.sample[tmp_idx].name == terminal_tag.name:
+                    self.sample_idx += len(square)
+                else:
+                    break
         return True
 
     def find_iterator(self):

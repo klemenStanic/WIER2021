@@ -20,7 +20,7 @@ class Element:
         elif self.is_square_start:
             return f'({self.name}'
         elif self.is_square_end:
-            return f'{self.name})'
+            return f'{self.name})+'
         else:
             return self.name
 
