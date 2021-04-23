@@ -2,6 +2,7 @@ from lxml import etree
 from html.parser import HTMLParser
 from bs4 import BeautifulSoup
 
+
 class Element:
     is_square_start = False
     is_square_end = False
@@ -13,24 +14,15 @@ class Element:
         self.is_tag = is_tag
         self.is_end_tag = is_end_tag
 
-    def __str__(self):
+    def __repr__(self):
         if self.is_optional:
-            return "(" + self.name + ")?"
+            return f'({self.name})?'
         elif self.is_square_start:
-            return "(" + self.name
+            return f'({self.name}'
         elif self.is_square_end:
-            return self.name + ")+"
+            return f'{self.name})'
         else:
             return self.name
-
-    def set_square_start(self):
-        self.is_square_start = True
-
-    def set_square_end(self):
-        self.is_square_end = True
-
-    def set_is_optional(self):
-        self.is_optional = True
 
 
 class RRHtmlParser(HTMLParser):
@@ -74,7 +66,6 @@ class RRHtmlParser(HTMLParser):
 
         walk(tree.getroot())  # cleanup and convert it to XHTML
         html_data = etree.tounicode(tree.getroot(), pretty_print=True, method='html').replace('\n', '').replace('\t', '')
-        print(str(html_data))
         soup = BeautifulSoup(html_data, 'lxml')
         return str(soup)
 
