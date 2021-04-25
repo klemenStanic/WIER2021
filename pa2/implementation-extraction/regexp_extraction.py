@@ -164,6 +164,8 @@ def clean_content(content):
 
 def run_regex():
     # RTV SLO
+    print(" ------------------------------------- ")
+    print(" ------------- rtvslo.si ------------- ")
     content = read_file(
         "../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html", "utf-8")
     extract_rtv_regexp(content)
@@ -175,8 +177,8 @@ def run_regex():
         "utf-8")
     extract_rtv_regexp(content)
 
-    print(" ------------------------------------ ")
-    print(" ------------------------------------ ")
+    print(" ------------------------------------- ")
+    print(" ----------- Overstock.com ----------- ")
 
     # overstock
     content = read_file(
@@ -189,8 +191,8 @@ def run_regex():
         "../input-extraction/overstock.com/jewelry02.html", "iso-8859-1")
     extract_overstock_regexp(content)
 
-    print(" ------------------------------------ ")
-    print(" ------------------------------------ ")
+    print(" ------------------------------------- ")
+    print(" ------------ Altstore.si ------------ ")
 
     # Altstore
     content = read_file(

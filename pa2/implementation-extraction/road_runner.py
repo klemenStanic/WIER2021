@@ -9,14 +9,16 @@ class RoadRunner:
     wrapper_idx = 0
 
     def __init__(self, wrapper_path, sample_path):
-        parser1 = RRHtmlParser()
-        html_data = parser1.preprocess_html_file(wrapper_path)
-        parser1.feed(html_data)
-        self.wrapper = deepcopy(parser1.data)
         parser = RRHtmlParser()
+        start = parser.last_idx
+        html_data = parser.preprocess_html_file(wrapper_path)
+        parser.feed(html_data)
+        self.wrapper = deepcopy(parser.data[start:])
+        parser = RRHtmlParser()
+        start = parser.last_idx
         html_data = parser.preprocess_html_file(sample_path)
         parser.feed(html_data)
-        self.sample = deepcopy(parser.data[len(self.wrapper):])
+        self.sample = deepcopy(parser.data[start:])
 
     def __repr__(self):
         out = ''
@@ -49,7 +51,7 @@ class RoadRunner:
             elif not lower_el.is_tag and not upper_el.is_tag and lower_el != upper_el:
                 square.append(Element("#TEXT", None, False, False))
             else:
-                return None  # TODO: recursion!
+                return None
 
         square.reverse()  # Putting square elements in correct order, since We were adding it in reverse
         return square
@@ -84,7 +86,7 @@ class RoadRunner:
         square[0].is_square_start = True
         square[-1].is_square_end = True
 
-        # finding the first and last occurence of square TODO: check this
+        # finding the first and last occurence of square
         start_iterator_idx = self.wrapper_idx
         end_iterator_idx = start_iterator_idx  # + len(square)
 
@@ -192,12 +194,12 @@ if __name__ == '__main__':
     # sample_path = '../input-extraction/altstore.si/Gaming prenosniki ACER - AltStore.html'
 
     # rtv
-    # wrapper_path = '../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html'
-    # sample_path = '../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html'
+    wrapper_path = '../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html'
+    sample_path = '../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html'
 
     # overstock
-    wrapper_path = '../input-extraction/overstock.com/jewelry01.html'
-    sample_path = '../input-extraction/overstock.com/jewelry02.html'
+    #wrapper_path = '../input-extraction/overstock.com/jewelry01.html'
+    #sample_path = '../input-extraction/overstock.com/jewelry02.html'
     rr = RoadRunner(wrapper_path, sample_path)
     rr.main()
     with open('../input-extraction/wrapper.html', 'w') as file:

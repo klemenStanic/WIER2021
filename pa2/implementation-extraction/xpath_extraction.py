@@ -75,13 +75,25 @@ def extract_altstore_path(path):
 
 
 def run_xpath():
+    print(" ------------------------------------- ")
+    print(" ------------- rtvslo.si ------------- ")
+
     extract_rtvslo_xpath(
         '../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html')
+    print(" ------------------------------------ ")
     extract_rtvslo_xpath(
         '../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html')
 
+    print(" ------------------------------------- ")
+    print(" ----------- Overstock.com ----------- ")
+
     extract_overstock_xpath('../input-extraction/overstock.com/jewelry01.html')
+    print(" ------------------------------------ ")
     extract_overstock_xpath('../input-extraction/overstock.com/jewelry02.html')
 
+    print(" ------------------------------------- ")
+    print(" ------------ Altstore.si ------------ ")
+
     extract_altstore_path('../input-extraction/altstore.si/Gaming prenosniki ACER - AltStore.html')
+    print(" ------------------------------------ ")
     extract_altstore_path('../input-extraction/altstore.si/Gaming prenosniki ASUS - AltStore.html')

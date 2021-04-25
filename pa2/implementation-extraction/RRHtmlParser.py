@@ -39,16 +39,20 @@ class Element:
 
 class RRHtmlParser(HTMLParser):
     data = []
+    last_idx = 0  # fix
 
     def handle_starttag(self, tag, attrs):
         self.data.append(Element("<"+ tag+ ">", attrs, True, False))
+        self.last_idx += 1
 
     def handle_endtag(self, tag):
         self.data.append(Element("</" + tag + ">", None, True, True))
+        self.last_idx += 1
 
     def handle_data(self, data):
         if data.strip() != '':
             self.data.append(Element(data, None, False, False))
+            self.last_idx += 1
 
     def preprocess_html_file(self, file_path):
         tree = etree.parse(file_path, etree.HTMLParser())

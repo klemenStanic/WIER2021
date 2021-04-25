@@ -44,7 +44,7 @@ class RoadRunner():
             elif not lower_el.is_tag and not upper_el.is_tag and lower_el.name != upper_el.name:
                 square.append(Element("#TEXT", None, False, False))
             else:
-                return None  # TODO: recursion!
+                return None
 
         square.reverse()  # Putting square elements in correct order, since We were adding it in reverse
         return square
