@@ -28,6 +28,14 @@ class Element:
         else:
             return self.name
 
+    def __eq__(self, other):
+        if self.name != other.name:
+            return False
+        elif self.attrs != other.attrs:
+            return False
+        else:
+            return True
+
 
 class RRHtmlParser(HTMLParser):
     data = []

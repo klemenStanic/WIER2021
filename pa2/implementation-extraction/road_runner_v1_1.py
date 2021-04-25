@@ -20,8 +20,13 @@ class RoadRunner():
 
     def __repr__(self):
         out = ''
+        flag = False
         for el in self.wrapper:
-            out += str(el) + '\n'
+            if el.is_square_start:
+                flag = True
+            elif el.is_square_end:
+                flag = False
+            out += str(el) + ('\n' if not flag else ' ')
         return out
 
     def square_match(self, lower_idx, upper_idx, on_wrapper=True):
@@ -79,8 +84,7 @@ class RoadRunner():
         square[0].is_square_start = True
         square[-1].is_square_end = True
 
-        # TODO: handle idx na koncu wrapperja
-        # finding the first and last occurence of square
+        # finding the first and last occurence of square TODO: check this
         start_iterator_idx = self.wrapper_idx
         end_iterator_idx = start_iterator_idx  # + len(square)
 
@@ -105,7 +109,6 @@ class RoadRunner():
         # set wrapper index on the end of square iterator
         self.wrapper_idx = start_iterator_idx
 
-        #TODO: sample vrtenje idx naprej
         while True:
                 tmp_idx = self.sample_idx + len(square) - 1
                 if tmp_idx >= len(self.sample):
@@ -123,20 +126,30 @@ class RoadRunner():
         return self.find_square()
 
     def find_optional(self):
-        for idx in range(self.wrapper_idx, len(self.wrapper)):
-            if self.wrapper[idx].name == self.sample[self.sample_idx].name:
-                for el in self.wrapper[self.wrapper_idx:idx]:
+        wrapper_mismatch = self.wrapper[self.wrapper_idx]
+        sample_mismatch = self.sample[self.sample_idx]
+        w_idx = self.wrapper_idx + 1
+        s_idx = self.sample_idx + 1
+
+        while w_idx < len(self.wrapper) and s_idx < len(self.sample):
+            if self.wrapper[w_idx] == sample_mismatch:
+                for el in self.wrapper[self.wrapper_idx:w_idx]:
                     el.is_optional = True
                     self.wrapper_idx += 1
                 return
-        for idx in range(self.sample_idx, len(self.sample)):
-            if self.sample[idx].name == self.wrapper[self.wrapper_idx].name:
-                for el in self.sample[self.sample_idx:idx]:
+            elif self.sample[s_idx] == wrapper_mismatch:
+                for el in self.sample[self.sample_idx:s_idx]:
                     el.is_optional = True
                     self.wrapper.insert(self.wrapper_idx, el)
                     self.wrapper_idx += 1
                     self.sample_idx += 1
                 return
+            else:
+                w_idx += 1
+                s_idx += 1
+        self.sample_idx += 1
+        self.wrapper_idx += 1
+        return
 
     def main(self):
         while self.wrapper_idx < len(self.wrapper) and self.sample_idx < len(self.sample):  # run until the end of either the wrapper or sample
@@ -167,8 +180,8 @@ class RoadRunner():
                     self.find_optional()
 
 # test pages
-wrapper_path = './test_page_1.html'
-sample_path = './test_page_2.html'
+#wrapper_path = '../input-extraction/test_pages/test_page_1.html'
+#sample_path = '../input-extraction/test_pages/test_page_2.html'
 
 # alstore
 #wrapper_path = '../input-extraction/altstore.si/Gaming prenosniki ASUS - AltStore.html'
@@ -179,14 +192,12 @@ sample_path = './test_page_2.html'
 #sample_path = '../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html'
 
 # overstock
-#wrapper_path = '../input-extraction/overstock.com/jewelry01.html'
-#sample_path = '../input-extraction/overstock.com/jewelry02.html'
+wrapper_path = '../input-extraction/overstock.com/jewelry01.html'
+sample_path = '../input-extraction/overstock.com/jewelry02.html'
 
-
-# TODO: fix optional only in one line ()?
 
 if __name__ == '__main__':
     rr = RoadRunner(wrapper_path, sample_path)
     rr.main()
-    with open('../implementation-extraction/wrapper.html', 'w') as file:
+    with open('../input-extraction/wrapper.html', 'w') as file:
         file.write(str(rr))
