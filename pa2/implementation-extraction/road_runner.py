@@ -2,7 +2,7 @@ from RRHtmlParser import RRHtmlParser, Element
 from copy import deepcopy
 
 
-class RoadRunner():
+class RoadRunner:
     wrapper = None
     sample = None
     sample_idx = 0
@@ -38,15 +38,15 @@ class RoadRunner():
         """
         data = self.wrapper if on_wrapper else self.sample
         square = []
-        data_a = data[upper_idx+1:lower_idx+1]  # --------
-        data_a.reverse()                        # so zip()
-        data_b = data[0:upper_idx+1]            # works
-        data_b.reverse()                        # --------
+        data_a = data[upper_idx + 1:lower_idx + 1]  # --------
+        data_a.reverse()  # so zip()
+        data_b = data[0:upper_idx + 1]  # works
+        data_b.reverse()  # --------
         for lower_el, upper_el in zip(data_a, data_b):
-            if lower_el.name == upper_el.name:
+            if lower_el == upper_el:
                 square.append(lower_el)
                 continue
-            elif not lower_el.is_tag and not upper_el.is_tag and lower_el.name != upper_el.name:
+            elif not lower_el.is_tag and not upper_el.is_tag and lower_el != upper_el:
                 square.append(Element("#TEXT", None, False, False))
             else:
                 return None  # TODO: recursion!
@@ -62,7 +62,7 @@ class RoadRunner():
         # finding square in wrapper
         idx = self.wrapper_idx  # We assume iterator continues on wrapper
         while idx < len(self.wrapper):
-            if self.wrapper[idx].name == terminal_tag.name:  # We found another terminal tag on wrapper
+            if self.wrapper[idx] == terminal_tag:  # We found another terminal tag on wrapper
                 square = self.square_match(idx, self.wrapper_idx - 1)  # We try to match square
                 if square is not None:
                     w_flag = True  # We found it on wrapper!
@@ -72,7 +72,7 @@ class RoadRunner():
         # finding square in sample
         idx = self.sample_idx  # We assume iterator continues on sample
         while idx < len(self.sample) and square is None:
-            if self.sample[idx].name == terminal_tag.name:  # we found another terminal tag on sample
+            if self.sample[idx] == terminal_tag:  # we found another terminal tag on sample
                 square = self.square_match(idx, self.sample_idx - 1, on_wrapper=False)  # We try to match square
                 if square is not None:
                     break  # We found it on sample!
@@ -89,13 +89,13 @@ class RoadRunner():
         end_iterator_idx = start_iterator_idx  # + len(square)
 
         while 0 <= start_iterator_idx:
-            if self.wrapper[start_iterator_idx - len(square)].name != square[0].name:
+            if self.wrapper[start_iterator_idx - len(square)] != square[0]:
                 break
             start_iterator_idx -= len(square)
 
         while end_iterator_idx < len(self.wrapper):
             tmp_idx = end_iterator_idx + len(square) - (1 if w_flag else 0)  # For any future questions: Just because!
-            if tmp_idx >= len(self.wrapper) or self.wrapper[tmp_idx].name != square[-1].name:
+            if tmp_idx >= len(self.wrapper) or self.wrapper[tmp_idx] != square[-1]:
                 break
             end_iterator_idx += len(square)
 
@@ -110,18 +110,18 @@ class RoadRunner():
         self.wrapper_idx = start_iterator_idx
 
         while True:
-                tmp_idx = self.sample_idx + len(square) - 1
-                if tmp_idx >= len(self.sample):
-                    break
-                elif self.sample[tmp_idx].name == terminal_tag.name:
-                    self.sample_idx += len(square)
-                else:
-                    break
+            tmp_idx = self.sample_idx + len(square) - 1
+            if tmp_idx >= len(self.sample):
+                break
+            elif self.sample[tmp_idx] == terminal_tag:
+                self.sample_idx += len(square)
+            else:
+                break
         return True
 
     def find_iterator(self):
         # prevous tags do not match, so we certainly are not on iterator
-        if self.wrapper[self.wrapper_idx - 1].name != self.sample[self.sample_idx - 1].name:
+        if self.wrapper[self.wrapper_idx - 1] != self.sample[self.sample_idx - 1]:
             return False
         return self.find_square()
 
@@ -152,11 +152,12 @@ class RoadRunner():
         return
 
     def main(self):
-        while self.wrapper_idx < len(self.wrapper) and self.sample_idx < len(self.sample):  # run until the end of either the wrapper or sample
+        while self.wrapper_idx < len(self.wrapper) and self.sample_idx < len(
+                self.sample):  # run until the end of either the wrapper or sample
             sample_element = self.sample[self.sample_idx]
             wrapper_element = self.wrapper[self.wrapper_idx]
 
-            if sample_element.name == wrapper_element.name:  # check for tag mismatch, if the elements match, we continue
+            if sample_element == wrapper_element:  # check for tag mismatch, if the elements match, we continue
                 self.wrapper_idx += 1
                 self.sample_idx += 1  # increment indexes
                 continue
@@ -165,8 +166,9 @@ class RoadRunner():
                 # or we have a tag mismatch, which could represent a iterator
                 # or an optional element,
 
-            if not sample_element.is_tag and not wrapper_element.is_tag and sample_element.name != wrapper_element.name:
-                self.wrapper[self.wrapper_idx] = Element("#TEXT", None, False, False)  # Mark the element in the wrapper as a  # TEXT
+            if not sample_element.is_tag and not wrapper_element.is_tag and sample_element != wrapper_element:
+                self.wrapper[self.wrapper_idx] = Element("#TEXT", None, False,
+                                                         False)  # Mark the element in the wrapper as a  # TEXT
 
                 self.wrapper_idx += 1
                 self.sample_idx += 1  # increment indexes
@@ -179,24 +181,23 @@ class RoadRunner():
                 if not result:
                     self.find_optional()
 
-# test pages
-#wrapper_path = '../input-extraction/test_pages/test_page_1.html'
-#sample_path = '../input-extraction/test_pages/test_page_2.html'
-
-# alstore
-#wrapper_path = '../input-extraction/altstore.si/Gaming prenosniki ASUS - AltStore.html'
-#sample_path = '../input-extraction/altstore.si/Gaming prenosniki ACER - AltStore.html'
-
-# rtv
-#wrapper_path = '../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html'
-#sample_path = '../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html'
-
-# overstock
-wrapper_path = '../input-extraction/overstock.com/jewelry01.html'
-sample_path = '../input-extraction/overstock.com/jewelry02.html'
-
 
 if __name__ == '__main__':
+    # test pages
+    # wrapper_path = '../input-extraction/test_pages/test_page_1.html'
+    # sample_path = '../input-extraction/test_pages/test_page_2.html'
+
+    # alstore
+    # wrapper_path = '../input-extraction/altstore.si/Gaming prenosniki ASUS - AltStore.html'
+    # sample_path = '../input-extraction/altstore.si/Gaming prenosniki ACER - AltStore.html'
+
+    # rtv
+    # wrapper_path = '../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html'
+    # sample_path = '../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html'
+
+    # overstock
+    wrapper_path = '../input-extraction/overstock.com/jewelry01.html'
+    sample_path = '../input-extraction/overstock.com/jewelry02.html'
     rr = RoadRunner(wrapper_path, sample_path)
     rr.main()
     with open('../input-extraction/wrapper.html', 'w') as file:
