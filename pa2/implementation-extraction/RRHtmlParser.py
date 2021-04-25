@@ -15,16 +15,12 @@ class Element:
         self.is_end_tag = is_end_tag
 
     def __repr__(self):
-        attrs = ' '
-        if self.attrs is not None:
-            for k in self.attrs:
-                attrs += f'{k} '
         if self.is_optional:
-            return f'({self.name}{attrs})?'
+            return f'({self.name})?'
         elif self.is_square_start:
-            return f'({self.name}{attrs}'
+            return f'({self.name}'
         elif self.is_square_end:
-            return f'{self.name}{attrs})+'
+            return f'{self.name})+'
         else:
             return self.name
 
@@ -39,7 +35,7 @@ class Element:
 
 class RRHtmlParser(HTMLParser):
     data = []
-    last_idx = 0  # fix
+    last_idx = -1  # fix
 
     def handle_starttag(self, tag, attrs):
         self.data.append(Element("<"+ tag+ ">", attrs, True, False))
@@ -61,7 +57,7 @@ class RRHtmlParser(HTMLParser):
             tree.getroot().remove(head[0])
 
         def walk(node):
-            cleaner_tag = ['script', 'input', 'button', 'select', 'style', 'iframe', 'form', 'figure', 'svg']
+            cleaner_tag = ['script', 'input', 'button', 'select', 'style', 'iframe', 'form', 'figure', 'svg', 'br']
             cleaner_attrib = ['href', 'style', 'click-event', 'event-payload', 'rel', 'aria-expanded',
                               'js-id', 'role', 'tabindex', 'aria-live', 'aria-relevant', 'aria-haspopup',
                               'align', 'valign', 'nowrap', 'colspan', 'bgcolor', 'onclick', 'aria-hidden',

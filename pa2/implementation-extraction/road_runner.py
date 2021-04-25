@@ -10,12 +10,11 @@ class RoadRunner:
 
     def __init__(self, wrapper_path, sample_path):
         parser = RRHtmlParser()
-        start = parser.last_idx
+        start = parser.last_idx + 1
         html_data = parser.preprocess_html_file(wrapper_path)
         parser.feed(html_data)
         self.wrapper = deepcopy(parser.data[start:])
-        parser = RRHtmlParser()
-        start = parser.last_idx
+        start = parser.last_idx + 1
         html_data = parser.preprocess_html_file(sample_path)
         parser.feed(html_data)
         self.sample = deepcopy(parser.data[start:])
@@ -186,21 +185,27 @@ class RoadRunner:
 
 if __name__ == '__main__':
     # test pages
-    # wrapper_path = '../input-extraction/test_pages/test_page_1.html'
-    # sample_path = '../input-extraction/test_pages/test_page_2.html'
+    wrapper_path = '../input-extraction/test_pages/test_page_2.html'
+    sample_path = '../input-extraction/test_pages/test_page_1.html'
+    output_path = '../input-extraction/test_pages/wrapper12.html'
 
     # alstore
     # wrapper_path = '../input-extraction/altstore.si/Gaming prenosniki ASUS - AltStore.html'
     # sample_path = '../input-extraction/altstore.si/Gaming prenosniki ACER - AltStore.html'
+    # output_path = '../input-extraction/altstore.si/wrapper12.html'
 
     # rtv
-    wrapper_path = '../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html'
-    sample_path = '../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html'
+    # wrapper_path = '../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html'
+    # sample_path = '../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html'
+    # output_path = '../input-extraction/rtvslo.si/wrapper12.html'
 
     # overstock
-    #wrapper_path = '../input-extraction/overstock.com/jewelry01.html'
-    #sample_path = '../input-extraction/overstock.com/jewelry02.html'
+    # wrapper_path = '../input-extraction/overstock.com/jewelry01.html'
+    # sample_path = '../input-extraction/overstock.com/jewelry02.html'
+    # output_path = '../input-extraction/overstock.com/wrapper12.html'
+
     rr = RoadRunner(wrapper_path, sample_path)
     rr.main()
-    with open('../input-extraction/wrapper.html', 'w') as file:
+    print(rr)
+    with open(output_path, 'w') as file:
         file.write(str(rr))

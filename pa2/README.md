@@ -3,7 +3,7 @@
 `cd implementation-extraction`
 `python3 ./run_extraction A`
 `python3 ./run_extraction B`
-`python3 ./run_extraction C siteA siteB`
+`python3 ./run_extraction C`
 
 
 
