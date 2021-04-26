@@ -8,9 +8,9 @@ class Element:
     is_square_end = False
     is_optional = False
 
-    def __init__(self, name, attrs, is_tag, is_end_tag):
+    def __init__(self, name, attributes, is_tag, is_end_tag):
         self.name = name
-        self.attrs = attrs
+        self.attributes = attributes
         self.is_tag = is_tag
         self.is_end_tag = is_end_tag
 
@@ -27,7 +27,7 @@ class Element:
     def __eq__(self, other):
         if self.name != other.name:
             return False
-        elif self.attrs != other.attrs:
+        elif self.attributes != other.attributes:
             return False
         else:
             return True

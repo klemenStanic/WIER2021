@@ -4,14 +4,19 @@ Luka Kavčič, 63150139
 
 
 ## 1. Introduction
+The goal of this assignment was to implement an automatic data extraction from given HTML pages using three different approaches.
+The first and second types of extraction are based on static rules, that are specific to a certain page we want to extract our data from. The third approach is automatic, meaning that we try to automaticaly determine the most relevant data on the page.
+
 
 ## 2. Implementation
 ### I. Two additional web pages
-The two additional web pages were selected from the site *altstore.si*. A data record and the data items within are presented in following image. 
+Part of our assignment was to select two similar web pages from a single website. We decided on *altsore.si* website as our selected source. We then used these two additional pages alongside the provided pages for testing three different approaches of data extraction.
+A data record and the data items within are presented in following image. 
 
-![Altstore.si data record](AltStore_Data_record.png)
+<img src="AltStore_Data_record.png" alt="altstore" width="200"/>
 
 ### II. Regular expressions implementation
+Regular expression we used are presented below. Data records on websites *overstock.com* and *altstore.si* were extracted using only one regular expression (All data records). Each data item was separatly extracted from the gathered data record.
 ```
 RTV:
  Author: re.search('<div class="author-name">(?P<Author>.*?)</div>', html)
@@ -42,6 +47,7 @@ Altstore:
 ```
 
 ### III. XPath implementation:
+We used a similar logic here, where we extracted each data record using one xpath expression and then one for each data item.
 ```
 RTV:
  Author: tree.xpath('.//div[@class="author-name"]')[0].text
@@ -58,7 +64,7 @@ Overstock:
   Price: item.xpath('.//tr/td/s')[0].text
   ListPrice: item.xpath('.//tr/td/span/b')[0].text
   Saving: item.xpath('.//tr/td/span[@class="littleorange"]')[0].text.split(' ')[0]
-  SavingPercent: saving[1].replace('(', '').replace(')', '')
+  SavingPercent: item.xpath('.//tr/td/span[@class="littleorange"]')[0].text.split(' ')[1].replace('(', '').replace(')', '')
   Content: item.xpath('.//table/tbody/tr/td/span')[2].text
 
 Altstore:
@@ -72,38 +78,146 @@ Altstore:
 ```
 
 ### IV. RoadRunner implementation:
-```
-wrapper_index, sample_index = 0                                                                       # initialize indexes
-while wrapper_index is not equal to wrapper.length and sample_index is not equal to sample.length:    # run until the end of either the wrapper or sample
-    sample_element = sample[sample_index]
-    wrapper_element = wrapper[sample_index]
-    
-    if sample_element is equal to wrapper_element:                                                    # check for tag mismatch, if the elements match, we continue 
-        wrapper_index, sample_index ++                                                                # increment indexes
-        continue
+For the third approach, we implemented the RoadRunner algorithm for automatic data extraction. We used the paper[1] as our guide. The whole process is split into two stages. First, we preprocess the HTML data of both the sample and wrapper pages. In this step we remove unnecessary HTML DOM elements (including *script*, *input*, *button*, *select*, *style*, *iframe*, *form*, *figure*, *svg* and *br*), that don't contribute to the essence of the information on the given page. The whole HTML is then transformed into XHTML, stripped of all tabs and new line characters and finally passed to the RoadRunner algorithm. The pseudocode of our RoadRunner algorithm is presented below.
 
-                                                                                                      # elements do not match, we could have a string mismatch
-                                                                                                      # or we have a tag mismatch, which could represent a iterator
-                                                                                                      # or an optional element, 
-    
-    if sample_element is not a tag and wrapper_element is not a tag:
-        Mark the element in the wrapper as a #TEXT
-    
-                                                                                                      # from here on, we either stumbled upon an optional element,
-                                                                                                      # or an iterator. We first check whether the element is an iterator,
-                                                                                                      # if its not, it must be an optional element.
-    if find_the_iterator returns false:
-        find_the_optional
 ```
+def square_match():
+  match square tags in reverse order with tags above the given square.
+  if not match —> not square
+  if all tags match —> square
+
+def find_square():
+  terminal_tag = tag before mismatch
+  while not at the end of wrapper:
+    search for terminal_tag
+    if found —> square = square_match()
+    if not square —> continue search
+
+  if square not found —> repeat the process on sample
+
+  if square not found on wrapper and sample —> not an iterator
+
+  search for all occurences of square on the wrapper
+  replace all occurences with one square marked as iterator
+  continue main() function from tags below iterator
+
+
+def find_iterator():
+  check if tags before mismatch match:
+  if not match —> it's not an iterator
+  else —> find_square()
+
+def find_optional():
+  find the optional element by cross searching the mismatching tags on the wrapper and the sample
+  if matching_element found on wrapper —> change all wrapper elements from mismatch to matching_element to optionals 
+  else —> add optional elements to wrapper
+
+def main():
+  loop until we reach the end of wrapper or sample:
+    check for tag mismatch on current wrapper and sample elements
+    if not mismatch —> continue
+
+    check for string mismatch
+    if mismatch —> change wrapper element to '#TEXT' and continue
+
+    result = find_iterator()
+    if not result:
+      find_optional()
+```
+
+#### V. UFRE Notation
+We use Union-Free Reqular Expression notation in order to represent string mismatches, optionals and iterators in our RoadRunner wrapper output. Therefore, optionals are represented as (\<OPTIONAL\>)?, iterators as (\<ITERATOR\>)+ and string mismatches as \#TEXT.
+
+
 ## 3. Results
-Wrapper outputs are attached to the end of this report.
+The regular expressions and XPath approaches give expected results.
+
+Our implementation of RoadRunner gives correct results on the test samples, presented in the paper. The algorithm performs rather well on the *altstore.si* webpages. However, the output wrapper is wrong on the *overstock.com* and *rtvslo.si* pages. This is due to the fact,that our algorithm is not implemented recursively, and therefore can't properly match squares in the find_iterator sections.
+
 
 ## 4. Conclusions
+RoadRunner algorithm implemenation proved to be the most difficult part of this assignment. We tried a few different approaches. Firstly, we tried to solve the problem using trees, which proved not to be the best choice. Then, we tried to follow the simplified version of the algorithm, presented in the paper. We tried expanding our algorithm with recursion, which proved to be too difficult.
 
+We also tried to include tag attributes (e.g. *class*) during the process of tag comparison, which turned out to give no significant improvements.
+
+ We present the output wrappers of the sample pages in the next chapter. We decided not to include the outputs, ran on other websites in this report, since they are too long. The outputs of web pages can be found in `input-extraction/<webpage>/wrapper.html` files.
 
 ## 5. Wrapper outputs:
-### rtvslo.si
+Wrapper page:
+```
+<html>
+<body>
+	Books of:
+	<b>
+		John Smith
+	</b>
+	<ul>
+		<li>
+			<I>
+				Title:
+			</I>
+			Web mining
+		</li>
+		<li>
+			<I>
+				Title:
+			</I>
+			Comp. Sys.
+		</li>
+	</ul>
+</body>
+</html>
+```
 
-### overstock.com
+Sample page:
+```
+<html>
+<body>
+	Books of:
+	<b>
+		Paul Jones
+	</b>
+	<img src="asdf"/>
+	<ul>
+		<li>
+			<I>
+				Title:
+			</I>
+			Web mining
+		</li>
+		<li>
+			<I>
+				Title:
+			</I>
+			Comp. Sys.
+		</li>
+		<li>
+			<I>
+				Title:
+			</I>
+			Javascript
+		</li>
+	</ul>
+</body>
+</html>
+``` 
 
-### altsore.si
+Output:
+```
+<html>
+<body>
+Books of:
+<b>
+#TEXT
+</b>
+(<img>)?
+(</img>)?
+<ul>
+(<li> <i> Title: </i> #TEXT </li>)+
+</ul>
+</body>
+</html>
+```
+
+## 6. Literature
+[1] Crescenzi, Valter, Giansalvatore Mecca, and Paolo Merialdo. "Roadrunner: Towards automatic data extraction from large web sites." VLDB. Vol. 1. 2001.

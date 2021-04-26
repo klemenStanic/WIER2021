@@ -97,3 +97,7 @@ def run_xpath():
     extract_altstore_path('../input-extraction/altstore.si/Gaming prenosniki ACER - AltStore.html')
     print(" ------------------------------------ ")
     extract_altstore_path('../input-extraction/altstore.si/Gaming prenosniki ASUS - AltStore.html')
+
+
+if __name__ == '__main__':
+    run_xpath()

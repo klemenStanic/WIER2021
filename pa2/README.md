@@ -1,10 +1,16 @@
+# Web extraction
+## Contents:
+- report: `report-extraction.pdf`
+- input data: `input-extraction/`
+- implementation: `implementation-extraction/`
+- outputs of method C: `input-extarction/<webpage>/wrapper.html`
+
 ## How to run:
 `pip install -r requierements.txt`
 `cd implementation-extraction`
 `python3 ./run_extraction A`
 `python3 ./run_extraction B`
 `python3 ./run_extraction C`
-
 
 
 ## Road Runner
@@ -39,3 +45,5 @@ while wrapper_index is not equal to wrapper.length and sample_index is not equal
     if find_the_iterator returns false:
         find_the_optional
 ```
+
+
