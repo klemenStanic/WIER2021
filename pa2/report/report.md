@@ -10,7 +10,7 @@ The first and second types of extraction are based on static rules, that are spe
 
 ## 2. Implementation
 ### I. Two additional web pages
-Part of our assignment was to select two similar web pages from a single website. We decided on *altsore.si* website as our selected source. We then used these two additional pages alongside the provided pages for testing three different approaches of data extraction.
+Part of our assignment was to select two similar web pages from a single website. We decided on *altstore.si* website as our selected source. We then used these two additional pages alongside the provided pages for testing three different approaches of data extraction.
 A data record and the data items within are presented in following image. 
 
 <img src="AltStore_Data_record.png" alt="altstore" width="200"/>
@@ -46,7 +46,7 @@ Altstore:
   Storage: re.search('<div class="stock-info.*?<span>.(?P<Storage>.*?)<a href', el, flags=re.S)
 ```
 
-### III. XPath implementation:
+### III. XPath implementation
 We used a similar logic here, where we extracted each data record using one xpath expression and then one for each data item.
 ```
 RTV:
@@ -77,7 +77,7 @@ Altstore:
   Storage: item.xpath('.//div[2]/span')[0].text.strip()
 ```
 
-### IV. RoadRunner implementation:
+### IV. RoadRunner implementation
 For the third approach, we implemented the RoadRunner algorithm for automatic data extraction. We used the paper[1] as our guide. The whole process is split into two stages. First, we preprocess the HTML data of both the sample and wrapper pages. In this step we remove unnecessary HTML DOM elements (including *script*, *input*, *button*, *select*, *style*, *iframe*, *form*, *figure*, *svg* and *br*), that don't contribute to the essence of the information on the given page. The whole HTML is then transformed into XHTML, stripped of all tabs and new line characters and finally passed to the RoadRunner algorithm. The pseudocode of our RoadRunner algorithm is presented below.
 
 ```
@@ -109,7 +109,7 @@ def find_iterator():
 
 def find_optional():
   find the optional element by cross searching the mismatching tags on the wrapper and the sample
-  if matching_element found on wrapper —> change all wrapper elements from mismatch to matching_element to optionals 
+  if matching_element found on wrapper —> change all wrapper elements to optionals from mismatch to matching_element 
   else —> add optional elements to wrapper
 
 def main():
@@ -132,7 +132,7 @@ We use Union-Free Reqular Expression notation in order to represent string misma
 ## 3. Results
 The regular expressions and XPath approaches give expected results.
 
-Our implementation of RoadRunner gives correct results on the test samples, presented in the paper. The algorithm performs rather well on the *altstore.si* webpages. However, the output wrapper is wrong on the *overstock.com* and *rtvslo.si* pages. This is due to the fact,that our algorithm is not implemented recursively, and therefore can't properly match squares in the find_iterator sections.
+Our implementation of RoadRunner gives correct results on the test samples, presented in the paper. The algorithm performs rather well on the *altstore.si* webpages. However, the output wrapper is wrong on the *overstock.com* and *rtvslo.si* pages. This is due to the fact, that our algorithm is not implemented recursively, and therefore can't properly match the squares in the find_iterator sections.
 
 
 ## 4. Conclusions
@@ -142,7 +142,7 @@ We also tried to include tag attributes (e.g. *class*) during the process of tag
 
  We present the output wrappers of the sample pages in the next chapter. We decided not to include the outputs, ran on other websites in this report, since they are too long. The outputs of web pages can be found in `input-extraction/<webpage>/wrapper.html` files.
 
-## 5. Wrapper outputs:
+## 5. Wrapper outputs
 Wrapper page:
 ```
 <html>

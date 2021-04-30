@@ -10,6 +10,7 @@ class RoadRunner:
 
     def __init__(self, wrapper_path, sample_path):
         parser = RRHtmlParser()
+        parser.data = []
         start = parser.last_idx + 1
         html_data = parser.preprocess_html_file(wrapper_path)
         parser.feed(html_data)
@@ -195,9 +196,9 @@ if __name__ == '__main__':
     # output_path = '../input-extraction/altstore.si/wrapper12.html'
 
     # rtv
-    # wrapper_path = '../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html'
-    # sample_path = '../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html'
-    # output_path = '../input-extraction/rtvslo.si/wrapper12.html'
+    wrapper_path = '../input-extraction/rtvslo.si/Audi A6 50 TDI quattro_ nemir v premijskem razredu - RTVSLO.si.html'
+    sample_path = '../input-extraction/rtvslo.si/Volvo XC 40 D4 AWD momentum_ suvereno med najboljše v razredu - RTVSLO.si.html'
+    output_path = '../input-extraction/rtvslo.si/wrapper12.html'
 
     # overstock
     # wrapper_path = '../input-extraction/overstock.com/jewelry01.html'
