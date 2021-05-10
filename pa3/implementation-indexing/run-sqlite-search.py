@@ -1,9 +1,11 @@
 from models import *
 from utils import *
+import time
 import os
 import sys
 
 session = Session(engine)
+N_OF_SNIPPETS = 2
 
 
 def import_data_item(filename, data_item):
@@ -42,8 +44,8 @@ def import_data():
 
 
 if __name__ == '__main__':
-    import_data()
-    sys.exit()
+#    import_data()
+#    sys.exit()
 
     time_start = time.time()
 
@@ -52,8 +54,7 @@ if __name__ == '__main__':
         sys.exit()
 
     queries = list(preprocess_text(sys.argv[1]).keys())
-    print(f'Results for a query: {sys.argv[1]}')
-
+   
     results = []
     for q in queries:
         tmp_rslt = session.query(Posting).filter(Posting.word == q).all()
@@ -72,7 +73,18 @@ if __name__ == '__main__':
             i += 1
 
     results.sort(reverse=True, key=lambda x: x.frequency)
+    time_stop = time.time()
 
+    print(f'Results for a query: \"{sys.argv[1]}\"\n')
+
+    print(f"Results found in {time_stop - time_start}s\n")
+
+    print('Frequencies Document                                            Snippet')
+    print('----------- --------------------------------------------------- -----------------------------------------------------------')
+
+    for result in results:
+        print('{: <11} {: <51} ... {} ...'.format(result.frequency, result.document_name, ' ... '.join(find_surroundings(result.document_name, result.indexes)[:N_OF_SNIPPETS])))
+    """
     for result in results:
         print(f'Document: {result.document_name}')
         print(f'Frequency: {result.frequency}')
@@ -81,3 +93,5 @@ if __name__ == '__main__':
         print('...\n---------------------')
 
     time_end = time.time()
+    print(f"The needed: {time_end - time_start}s")
+    """

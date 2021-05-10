@@ -2,8 +2,8 @@
 from nltk.corpus import stopwords
 import nltk
 
-nltk.download(download_dir="../data/nltk_data", info_or_id="stopwords")
-nltk.download(download_dir="../data/nltk_data", info_or_id="punkt")
+#nltk.download(download_dir="../data/nltk_data", info_or_id="stopwords")
+#nltk.download(download_dir="../data/nltk_data", info_or_id="punkt")
 
 nltk.data.path.append("../data/nltk_data")
 

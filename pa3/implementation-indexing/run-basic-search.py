@@ -7,6 +7,7 @@ import time
 # "snippets": []
 
 results = []
+N_OF_SNIPPETS = 2
 
 
 def sequential_search(q):
@@ -18,7 +19,7 @@ def sequential_search(q):
         site_dir = os.path.join(data_dir, dir)
         for file_name in os.listdir(site_dir):
             file_path = os.path.join(site_dir, file_name)
-            print(f'\rImporting file: {file_path}', end="")
+            #print(f'\rImporting file: {file_path}', end="")
             with open(file_path, 'r') as file:
                 file_text = file.read()
                 file_text = utils.get_only_text_from_html(file_text)
@@ -32,8 +33,7 @@ def sequential_search(q):
                 if item["freq"] > 0:
                     results.append(item)
         print("", flush=True)
-        break
-
+        
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -50,16 +50,24 @@ if __name__ == '__main__':
     print("Processing data...")
     # Sort data by frequency
     results.sort(reverse=True, key=lambda x: len(x["snippets"]))
+    time_stop = time.time()
+
+
+    print(f'Results for a query: \"{sys.argv[1]}\"\n')
+
+    print(f"Results found in {time_stop - time_start}s\n")
+
+    print('Frequencies Document                                            Snippet')
+    print('----------- --------------------------------------------------- -----------------------------------------------------------')
 
     for result in results:
+        print('{: <11} {: <51} ... {} ...'.format(len(result["snippets"]), result["document"], ' ... '.join(result["snippets"][:N_OF_SNIPPETS]) ))
+        """
         print(f'Document: {result["document"]}')
         print(f'Frequency: {len(result["snippets"])}')
         for i in result["snippets"]:
             print(f'... {i} ', end='')
         print('...\n---------------------')
-
-    time_stop = time.time()
-    print(f"The needed: {time_stop - time_start}s")
-
+        """
 
 
