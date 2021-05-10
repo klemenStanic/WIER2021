@@ -42,8 +42,10 @@ def import_data():
 
 
 if __name__ == '__main__':
-    #import_data()
-    #sys.exit()
+    import_data()
+    sys.exit()
+
+    time_start = time.time()
 
     if len(sys.argv) != 2:
         print('Please enter query string.')
@@ -77,3 +79,5 @@ if __name__ == '__main__':
         for i in find_surroundings(result.document_name, result.indexes):
             print(f'... {i} ', end='')
         print('...\n---------------------')
+
+    time_end = time.time()

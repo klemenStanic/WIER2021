@@ -64,9 +64,16 @@ def find_surroundings(file_path, indexes):
     out_strings = []
     for idx in indexes.split(','):
         idx = int(idx)
-        out_strings.append( " ".join(file_text[idx-3:idx+4]) )  # TODO: watch the index at the begining/end of file
+        out_strings.append(" ".join(file_text[idx-3:idx+4]))  # TODO: watch the index at the begining/end of file
     return out_strings
 
+
+def find_surroundings_from_text(file_text, indexes):
+    file_text = file_text.split(" ")
+    out_strings = []
+    for idx in indexes:
+        out_strings.append(" ".join(file_text[idx-3:idx+4]))  # TODO: watch the index at the begining/end of file
+    return out_strings
 
 
 def get_testing_text():
