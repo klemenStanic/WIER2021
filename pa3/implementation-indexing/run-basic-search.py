@@ -32,7 +32,7 @@ def sequential_search(q):
                 item["freq"] = len(item["snippets"])
                 if item["freq"] > 0:
                     results.append(item)
-        print("", flush=True)
+        #print("", flush=True)
         
 
 if __name__ == '__main__':
