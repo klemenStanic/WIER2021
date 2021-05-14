@@ -11,7 +11,7 @@ searching files and compared the time compexity.
 
 ## 2. Implementation
 ### 2.A Data processing and indexing
-Before we can index the data, the HTML pages must be cleaned of all the unnecessary and words, that don't
+Before we can index the data, the HTML pages must be cleaned of all the unnecessary data and words, that don't
 contain much information, such as stopwords. This process consists of:
 - *HTML text extraction*: We use **beautifulsoup** to parse the webpages and extract only the textual information, 
 disregarding all html tags, etc. At this point, we also remove all the *script* sections of the HTML, we
@@ -20,7 +20,7 @@ disregarding all html tags, etc. At this point, we also remove all the *script* 
 tokenization process, we transform the words to lower case. We remove all the stopwords using the
   provided stoplist. 
   
-The same process is used on search query terms and the *basic* version of this algorithm.
+The same process is used on search query string for the *sqlite* and the *basic* version of this algorithm.
 
 Indexing the cleaned data into the *sqlite* database:
 - We open every file and clean it with the process we described above. We then iterate the words, and for each word 
@@ -29,24 +29,26 @@ Indexing the cleaned data into the *sqlite* database:
 - We insert this data into IndexWord and Posting database tables.
 
 ### 2.B Data retrieval / querying
-When a user enters string query, we first clean it using the same process we described above. Once cleaned, 
+When a user enters search query string, we first clean it using the same process we described above. Once cleaned, 
 we iterate the query word by word and query the database for the word and append it to a list. This list, now 
 containing all occurances of all the words in the search query, is then sorted by the document name, in which
 it appeared in. Words that appear in the same document are aggregated along with their frequencies and 
 indexes. The list is again sorted, this time using the word frequency. This list, combined with snippets near the
 word indexes, is then printed to the standard output.
 
+<div style="page-break-after: always;"></div>
+
 ### 2.C Naive approach 
 The algorithm opens each file sequentially and cleans the content of the file. We then iterate the
-list of (cleaned) words of the file and search for any words that match the words contained in search query. If the word
-matches the query search word, we save the words in the direct vicinity and increment the word's frequency.
+list of cleaned words of the file and search for any words that match the words contained in search query. If the word
+matches the query search word, we save the uncleaned words in the direct vicinity and increment the word's frequency.
 After the whole dataset is searched, we sort the results by frequency and print out the results.
 
 ## 3. Results
-Results on the given search queries are presented in section 5. We limited the number of snippets per document to 2
+Results on the given search queries are presented in section 5. We limited the number of snippets per document to 2 (this can be changed in code, using variable `N_OF_SNIPPETS`)
 and also trancuted some results, to only show top hits. Full outputs, both for the basic and inverted index version
 are stored in folder `results`.
-TODO: comment results
+
 
 ### 3.A Inverted index database, basic info:
 Our database consists of two tables. First table, named IndexWords, contains all tokenized words found in the given documents, which includes 48 910 different words. 
@@ -71,15 +73,19 @@ Below, we present times for our queries. We can see that the speedup of Sqlite q
 
 | Query                 | Basic     | Sqlite  |
 | --------------------- | --------- | ------- |
-|Janez Janša            | 120.721 s | 0.013 s |
 |predelovalne dejavnosti|  94.057 s | 0.023 s |
-|social services        |  91.378 s | 0.009 s |
-|studentski domovi      | 115.223 s | 0.005 s |
 |trgovina               |  91.348 s | 0.011 s |
+|social services        |  91.378 s | 0.009 s |
+|Janez Janša            | 120.721 s | 0.013 s |
+|studentski domovi      | 115.223 s | 0.005 s |
 |voznisko dovoljenje    | 115.129 s | 0.019 s |
 
+Both the inverted index and naive implementation return correct results. The process of importing the data into the sqlite database is more time consuming than simply searching the dataset sequentially, but we only have to do this process once or when additional pages have to be added to the inverted index. 
 
 ## 4. Conclusions
+We are satisfied with the results we get and the inverted index performs really well. In order to improve the accuracy of the search, we could further improve our preprocessing
+pipeline to filter out more redundunt content. This includes words that appear frequently across multiple documents and give no additional information that is page specific. Though we are aware this could potentially limit our query results.
+
 
 
 ## (5.) Search query results
