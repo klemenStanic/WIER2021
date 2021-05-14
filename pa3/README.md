@@ -21,6 +21,8 @@ or
 
 `python run-sqlite-search.py SEARCH_PARAM`
 
+If your search query consists of multiple words, use quotations marks aroung it e.g. `"Sistem SPOT"`.
+
 In order to run the indexing process, uncomment lines 47 and 48 in the file `implemetation-indexing/run-sqlite-search.py`.
 
 
