@@ -12,9 +12,13 @@ the Master's course Web extraction and retrieval at the University of Ljubljana.
 
 ## How to run:
 `pip install -r requierements.txt`
+
 `cd implementation-indexing`
+
 `python run-basic-search.py SEARCH_PARAM`
+
 or
+
 `python run-sqlite-search.py SEARCH_PARAM`
 
 In order to run the indexing process, uncomment lines 47 and 48 in the file `implemetation-indexing/run-sqlite-search.py`.
