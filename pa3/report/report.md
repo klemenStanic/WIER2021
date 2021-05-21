@@ -5,7 +5,7 @@ Luka Kavčič, 63150139
 ## 1. Introduction
 The goal of this assignent was to implement an algorithm that would first process the provided
 HTML pages and index them into a database. The built index is then used for querying against it in order 
-to find the occurances of the search term in all the pages. To get a better representation of the speedup an inverted
+to find the occurrences of the search term in all the pages. To get a better representation of the speedup an inverted
 index achieves compared to a more naive approach, we also implemented an algorithm that achieves the same results by sequentialy
 searching files and compared the time compexity.
 
@@ -24,14 +24,14 @@ The same process is used on search query string for the *sqlite* and the *basic*
 
 Indexing the cleaned data into the *sqlite* database:
 - We open every file and clean it with the process we described above. We then iterate the words, and for each word 
-  (out of the preprocessed text), we count the number of occurances of the word in the file, and find the indexes of these 
-  occurances.
+  (out of the preprocessed text), we count the number of occurrences of the word in the file, and find the indexes of these 
+  occurrences.
 - We insert this data into IndexWord and Posting database tables.
 
 ### 2.B Data retrieval / querying
 When a user enters search query string, we first clean it using the same process we described above. Once cleaned, 
 we iterate the query word by word and query the database for the word and append it to a list. This list, now 
-containing all occurances of all the words in the search query, is then sorted by the document name, in which
+containing all occurrences of all the words in the search query, is then sorted by the document name, in which
 it appeared in. Words that appear in the same document are aggregated along with their frequencies and 
 indexes. The list is again sorted, this time using the word frequency. This list, combined with snippets near the
 word indexes, is then printed to the standard output.
@@ -51,7 +51,7 @@ are stored in folder `results`.
 
 
 ### 3.A Inverted index database, basic info:
-Our database consists of two tables. First table, named IndexWords, contains all tokenized words found in the given documents, which includes 48 910 different words. 
+Our database consists of two tables. First table, named IndexWord, contains all tokenized words found in the given documents, which includes 48 910 different words. 
 During the importing phase we excluded stop words and did not save them to our database. The second table, named Posting, holds pairs of words and documents that contains them. We also save the frequency of appearance of the given word in the document as well as the place of appearance stored as indexes. Posting table holds 383 347 pairs. Pairs with highes frequencies are presented below.
 
 |Word       | Document                                  | Frequency |
